@@ -38,7 +38,36 @@ public class TestAlphabeticalSerializer {
         assertEquals(myTestObject.b, encapsulatedData.b);
         assertEquals(myTestObject.c, encapsulatedData.c);
         assertEquals(myTestObject.d, encapsulatedData.d);
+    }
 
+    @Test
+    public void test_complex_serialisation_deserialisation() {
+        VSerializer serializer = new AlphabeticalSerializer();
+        ComplexDataStructure cds = new ComplexDataStructure();
+        cds.a = 0xff;
+        cds.b = -1;
+        cds.somethingElse = new ComplexDataStructure();
+        cds.somethingElse.a = -2;
+        cds.somethingElse.b = 5;
+
+        int size = AlphabeticalSerializer.calculateSize(cds.getClass().getDeclaredFields(), cds);
+
+        assertEquals(26, size);
+
+        byte[] data = serializer.serialize(cds);
+        assertEquals(26, data.length);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        assertEquals(cds.a, byteBuffer.getLong());
+        assertEquals(cds.b, byteBuffer.getInt());
+        assertEquals(1, byteBuffer.get());
+
+        cds = serializer.deserialise(data, ComplexDataStructure.class);
+
+        assertEquals(0xff, cds.a);
+        assertEquals(-1, cds.b);
+        assertNotNull(cds.somethingElse);
+        assertEquals(-2, cds.somethingElse.a);
+        assertEquals(5, cds.somethingElse.b);
     }
 
     private void initWithData(EncapsulatedData myTestObject) {
@@ -54,5 +83,11 @@ public class TestAlphabeticalSerializer {
         private int b;// = 0x1111;
         private short d;// = 0xff;
         private byte c;// = 0xf;
+    }
+
+    public static class ComplexDataStructure {
+        private long a;
+        private int b;
+        private ComplexDataStructure somethingElse;
     }
 }
