@@ -29,4 +29,4 @@ following the examples in the unit test classes.
 
 # Try it out
 
-Follow instructions here https://jitpack.io/#vaslabs/VSerializer/-SNAPSHOT
+Follow instructions here https://jitpack.io/#vaslabs/VSerializer
