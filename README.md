@@ -8,7 +8,7 @@ However, the complexity of doing such a thing is too much for the average develo
 fast as possible. The aim of this library is to automate the whole process and replace ideally the default serialization mechanism.
 
 That can achieve:
-- Lazy compression and decompression on the fly to keep volatile memory usage low for objects that are not used frequently (e.g. cached objects with low hit/miss ratio.
+- Lazy compression and decompression on the fly to keep volatile memory usage low for objects that are not used frequently (e.g. cached objects with low hit/miss ratio).
 - Occupying less persistent memory when saving objects on disk.
 
 
