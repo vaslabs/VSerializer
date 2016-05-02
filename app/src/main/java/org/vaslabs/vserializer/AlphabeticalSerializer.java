@@ -84,7 +84,7 @@ public class AlphabeticalSerializer implements VSerializer {
         } catch (NoSuchMethodException e) {
             return null;
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            return null;
         }
         for (Field field : fields) {
             field.setAccessible(true);
