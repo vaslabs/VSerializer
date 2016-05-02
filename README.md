@@ -7,6 +7,10 @@ Memory on Android is precious. Every application should be using the minimum ava
 However, the complexity of doing such a thing is too much for the average developer that wants to ship the application as 
 fast as possible. The aim of this library is to automate the whole process and replace ideally the default serialization mechanism.
 
+That can achieve:
+- Lazy compression and decompression on the fly to keep volatile memory usage low for objects that are not used frequently (e.g. cached objects with low hit/miss ratio.
+- Occupying less persistent memory when saving objects on disk.
+
 
 # How does it work?
 
