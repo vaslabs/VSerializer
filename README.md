@@ -16,3 +16,13 @@ That can achieve:
 
 This project is under development and very young. However, you can use it if you are curious or you want to be a step ahead by 
 following the examples in the unit test classes.
+
+# Advantages
+- A lot less memory usage when serializing objects compared to JVM or json.
+- Faster processing for serialization/deserialization
+
+# Disadvantages
+- Less forgiving for changed classes. A mechanism to manage changes will be in place but since the meta data for the classes won't be carried over it will never be the same as the defaults.
+
+# Use case:
+- Any data structure that matches a timestamp with other primitive values would be highly optimised in terms of space when saving the data using this approach. You can save millions of key/value pairs for data like timestamp/location history graph.
