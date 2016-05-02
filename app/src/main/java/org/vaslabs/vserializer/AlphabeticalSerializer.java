@@ -62,7 +62,7 @@ public class AlphabeticalSerializer implements VSerializer {
         }
 
         return byteBuffer.array();
-    }
+    } 
 
     @Override
     public <T, E extends Class<T>> T deserialise(byte[] data, E clazz) {
