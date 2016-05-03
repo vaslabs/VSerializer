@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -76,6 +77,42 @@ public class TestAlphabeticalSerializer {
     }
 
     @Test
+    public void test_serialization_deserialization_of_objects_that_encapsulate_primitive_arrays() {
+        DataStructureWithArray dataStructureWithArray = new DataStructureWithArray();
+        dataStructureWithArray.numbers = new int[5];
+        dataStructureWithArray.numbers[0] = 1;
+        dataStructureWithArray.numbers[1] = -1;
+        dataStructureWithArray.numbers[2] = 2;
+        dataStructureWithArray.numbers[3] = -2;
+        dataStructureWithArray.numbers[4] = 3;
+
+        dataStructureWithArray.somethingElse = true;
+        dataStructureWithArray.value = 0xff11223344L;
+
+        assertEquals(33, AlphabeticalSerializer.calculateSize(dataStructureWithArray.getClass().getDeclaredFields(), dataStructureWithArray));
+        VSerializer vSerializer = new AlphabeticalSerializer();
+        byte[] data = vSerializer.serialize(dataStructureWithArray);
+        assertEquals(33, data.length);
+
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+
+        assertEquals(5, byteBuffer.getInt());
+        assertEquals(1, byteBuffer.getInt());
+        assertEquals(-1, byteBuffer.getInt());
+        assertEquals(2, byteBuffer.getInt());
+        assertEquals(-2, byteBuffer.getInt());
+        assertEquals(3, byteBuffer.getInt());
+        assertEquals(1, byteBuffer.get());
+        assertEquals(dataStructureWithArray.value, byteBuffer.getLong());
+
+        DataStructureWithArray dataStructureWithArrayDeserialized = vSerializer.deserialise(data, DataStructureWithArray.class);
+
+        assertTrue(Arrays.equals(dataStructureWithArray.numbers, dataStructureWithArrayDeserialized.numbers));
+        assertEquals(dataStructureWithArray.somethingElse, dataStructureWithArrayDeserialized.somethingElse);
+        assertEquals(dataStructureWithArray.value, dataStructureWithArrayDeserialized.value);
+    }
+
+    @Test
     public void measureDifferenceFromVM() {
         VSerializer serializer = new AlphabeticalSerializer();
         ComplexDataStructure cds = new ComplexDataStructure();
@@ -128,5 +165,11 @@ public class TestAlphabeticalSerializer {
         private long a;
         private int b;
         private ComplexDataStructure somethingElse;
+    }
+
+    public static class DataStructureWithArray {
+        private int[] numbers;
+        private long value;
+        private boolean somethingElse;
     }
 }
