@@ -2,6 +2,7 @@ package org.vaslabs.vserializer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -52,13 +53,20 @@ public class AlphabeticalSerializer implements VSerializer {
         });
 
         for (Field field : fields) {
-            field.setAccessible(true);
+            if (Modifier.isStatic(field.getModifiers()))
+                continue;
             try {
+                SerializationUtils.arrangeField(field, obj);
                 convert(byteBuffer, field, obj);
-            } catch (IllegalAccessException e) {
+            } catch (Exception e) {
                 return null;
+            } finally {
+                try {
+                    SerializationUtils.houseKeeping(field);
+                } catch (Exception e) {
+
+                }
             }
-            field.setAccessible(false);
         }
         return obj;
     }
@@ -172,6 +180,8 @@ public class AlphabeticalSerializer implements VSerializer {
         });
 
         for (Field field : fields) {
+            if (Modifier.isStatic(field.getModifiers()))
+                continue;
             field.setAccessible(true);
             try {
                 putIn(byteBuffer, field, obj);

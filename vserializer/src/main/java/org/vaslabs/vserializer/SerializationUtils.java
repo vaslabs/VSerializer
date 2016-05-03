@@ -46,7 +46,7 @@ public class SerializationUtils {
     }
 
     public static <T, E extends Class<T>> T instantiate(E clazz) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Constructor<T> constructor = (Constructor<T>) clazz.getDeclaredConstructors()[0];
+        Constructor<T> constructor = (Constructor<T>) clazz.getDeclaredConstructor();
         constructor.setAccessible(true);
         return constructor.newInstance(null);
     }
@@ -82,6 +82,8 @@ public class SerializationUtils {
 
             field.setAccessible(true);
             Class type = field.getType();
+            if (!sizes.containsKey(type))
+                return 0;
             int consistentTypeSize = sizes.get(type);
             int arraySize = findArrayLength(field, obj);
             field.setAccessible(false);
@@ -128,5 +130,16 @@ public class SerializationUtils {
             return 0;
         int size = sizes.get(type);
         return size;
+    }
+
+    public static <T> void arrangeField(Field field, T obj) throws NoSuchFieldException, IllegalAccessException {
+        field.setAccessible(true);
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+    }
+
+    public static void houseKeeping(Field field) throws IllegalAccessException, NoSuchFieldException {
+        field.setAccessible(false);
     }
 }

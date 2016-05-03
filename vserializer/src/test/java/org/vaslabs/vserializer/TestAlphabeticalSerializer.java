@@ -127,6 +127,42 @@ public class TestAlphabeticalSerializer {
         System.out.println("VSerializer: " + data.length);
         System.out.println("JVM Serializer: " + jvmData.length);
         assertTrue(data.length < jvmData.length);
+
+        DataStructureWithArray dataStructureWithArray = new DataStructureWithArray();
+        dataStructureWithArray.numbers = new int[5];
+        dataStructureWithArray.numbers[0] = 1;
+        dataStructureWithArray.numbers[1] = -1;
+        dataStructureWithArray.numbers[2] = 2;
+        dataStructureWithArray.numbers[3] = -2;
+        dataStructureWithArray.numbers[4] = 3;
+
+        dataStructureWithArray.somethingElse = true;
+        dataStructureWithArray.value = 0xff11223344L;
+        data = serializer.serialize(dataStructureWithArray);
+        jvmData = serializeObject(dataStructureWithArray);
+
+        System.out.println("VSerializer: " + data.length);
+        System.out.println("JVM Serializer: " + jvmData.length);
+        assertTrue(data.length < jvmData.length);
+    }
+
+    @Test
+    public void test_serialization_deserialization_with_final_values() {
+        FinalEncapsulatedData finalEncapsulatedData = new FinalEncapsulatedData(1L, 2, (short)3, (byte)4);
+        VSerializer vSerializer = new AlphabeticalSerializer();
+        byte[] data = vSerializer.serialize(finalEncapsulatedData);
+
+        FinalEncapsulatedData finalEncapsulatedData1 = vSerializer.deserialise(data, FinalEncapsulatedData.class);
+        assertEquals(1L, finalEncapsulatedData1.a);
+    }
+
+    @Test
+    public void test_string_serialization_deserialization() {
+        String someString = "Hello world";
+        VSerializer vSerializer = new AlphabeticalSerializer();
+        byte[] data = vSerializer.serialize(someString);
+        String recoveredString = vSerializer.deserialise(data, String.class);
+        assertEquals(someString, recoveredString);
     }
 
     private void initWithData(EncapsulatedData myTestObject) {
@@ -136,7 +172,7 @@ public class TestAlphabeticalSerializer {
         myTestObject.d = 0xff;
     }
 
-    private byte[] serializeObject(ComplexDataStructure cds) {
+    private byte[] serializeObject(Serializable cds) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] data = null;
         try {
@@ -160,13 +196,33 @@ public class TestAlphabeticalSerializer {
         private byte c;// = 0xf;
     }
 
+    public static class FinalEncapsulatedData {
+        private final long a;// = 0xff121212;
+        private final int b;// = 0x1111;
+        private final short d;// = 0xff;
+        private final byte c;// = 0xf;
+
+        public FinalEncapsulatedData() {
+            a = 0;
+            b = 0;
+            d = 0;
+            c = 0;
+        }
+        public FinalEncapsulatedData(long a, int b, short d, byte c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+            this.d = d;
+        }
+    }
+
     public static class ComplexDataStructure implements Serializable {
         private long a;
         private int b;
         private ComplexDataStructure somethingElse;
     }
 
-    public static class DataStructureWithArray {
+    public static class DataStructureWithArray implements Serializable{
         private int[] numbers;
         private long value;
         private boolean somethingElse;
