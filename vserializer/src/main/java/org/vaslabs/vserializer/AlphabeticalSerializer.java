@@ -10,10 +10,12 @@ import java.util.Comparator;
 /**
  * Created by vnicolaou on 02/05/16.
  */
-public class AlphabeticalSerializer implements VSerializer {
+public class AlphabeticalSerializer extends StringSerializer {
 
     @Override
     public <T> byte[] serialize(T obj) {
+        if (obj instanceof String)
+            return super.serialize(obj);
         final Field[] fields = obj.getClass().getDeclaredFields();
         final int size = SerializationUtils.calculateSize(fields, obj);
 
@@ -32,6 +34,8 @@ public class AlphabeticalSerializer implements VSerializer {
 
     @Override
     public <T, E extends Class<T>> T deserialise(byte[] data, E clazz) {
+        if (clazz.equals(String.class))
+            return super.deserialise(data, clazz);
         Field[] fields = clazz.getDeclaredFields();
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         T obj = null;
@@ -289,4 +293,22 @@ public class AlphabeticalSerializer implements VSerializer {
         }
     }
 
+}
+
+class StringSerializer implements VSerializer {
+    @Override
+    public <T> byte[] serialize(T myTestObject) {
+        if (!(myTestObject instanceof String))
+            throw new IllegalArgumentException("Only Strings are supported");
+
+        return ((String) myTestObject).getBytes();
+    }
+
+    @Override
+    public <T, E extends Class<T>> T deserialise(byte[] data, E clazz) {
+        if (!clazz.equals(String.class)) {
+            throw new IllegalArgumentException("Only Strings are supported");
+        }
+        return (T) new String(data);
+    }
 }
