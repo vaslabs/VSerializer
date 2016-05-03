@@ -144,6 +144,14 @@ public class TestAlphabeticalSerializer {
         System.out.println("VSerializer: " + data.length);
         System.out.println("JVM Serializer: " + jvmData.length);
         assertTrue(data.length < jvmData.length);
+
+        System.out.println("Compare string serialization");
+        String someString = "Hello world";
+        VSerializer vSerializer = new AlphabeticalSerializer();
+        data = vSerializer.serialize(someString);
+        jvmData = serializeObject(someString);
+        System.out.println("VSerializer: " + data.length);
+        System.out.println("JVM Serializer: " + jvmData.length);
     }
 
     @Test
