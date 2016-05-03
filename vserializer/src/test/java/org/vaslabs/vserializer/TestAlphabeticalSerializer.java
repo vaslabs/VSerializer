@@ -4,7 +4,6 @@ package org.vaslabs.vserializer;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
@@ -56,7 +55,7 @@ public class TestAlphabeticalSerializer {
         cds.somethingElse.a = -2;
         cds.somethingElse.b = 5;
 
-        int size = AlphabeticalSerializer.calculateSize(cds.getClass().getDeclaredFields(), cds);
+        int size = SerializationUtils.calculateSize(cds.getClass().getDeclaredFields(), cds);
 
         assertEquals(26, size);
 
@@ -89,7 +88,7 @@ public class TestAlphabeticalSerializer {
         dataStructureWithArray.somethingElse = true;
         dataStructureWithArray.value = 0xff11223344L;
 
-        assertEquals(33, AlphabeticalSerializer.calculateSize(dataStructureWithArray.getClass().getDeclaredFields(), dataStructureWithArray));
+        assertEquals(33, SerializationUtils.calculateSize(dataStructureWithArray.getClass().getDeclaredFields(), dataStructureWithArray));
         VSerializer vSerializer = new AlphabeticalSerializer();
         byte[] data = vSerializer.serialize(dataStructureWithArray);
         assertEquals(33, data.length);
