@@ -65,7 +65,10 @@ public class SerializationUtils {
                 if (field.getType().equals(String.class)) {
                     try {
                         String string = (String) field.get(obj);
-                        size += 4 + string.length()*2;
+                        if (string == null)
+                            size += 4;
+                        else
+                            size += 4 + string.length()*2;
                         continue;
                     } catch (IllegalAccessException e) {
                         return 0;

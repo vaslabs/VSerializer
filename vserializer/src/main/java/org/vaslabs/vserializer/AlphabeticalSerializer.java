@@ -425,6 +425,10 @@ abstract class StringSerializer implements VSerializer {
 
     protected <T> void convertString(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException {
         final int stringLength = byteBuffer.getInt();
+        if (stringLength == -1) {
+            field.set(obj, null);
+            return;
+        }
         final char[] stringChars = new char[stringLength];
         for (int i = 0; i < stringLength; i++) {
             stringChars[i] = byteBuffer.getChar();
@@ -435,6 +439,10 @@ abstract class StringSerializer implements VSerializer {
 
     protected <T> void insertString(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException {
         String string = (String) field.get(obj);
+        if (string == null) {
+            byteBuffer.putInt(-1);
+            return;
+        }
         byteBuffer.putInt(string.length());
         char[] characters = string.toCharArray();
         byte[] bytes = toBytes(characters);
