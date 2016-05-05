@@ -155,8 +155,9 @@ public class TestAlphabeticalSerializer {
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         int size = byteBuffer.getInt();
         assertEquals(10, size);
-        assertEquals(154, data.length);
+        assertEquals(164, data.length);
         for (int i = 0; i <encapsulatedDatas.length; i++) {
+            assertEquals(1, byteBuffer.get());
             assertEquals(encapsulatedDatas[i].a, byteBuffer.getLong());
             assertEquals(i, byteBuffer.getInt());
             assertEquals(0xf, byteBuffer.get());
@@ -182,10 +183,11 @@ public class TestAlphabeticalSerializer {
         dsObjectArray.value = 48204431L;
         VSerializer vSerializer = new AlphabeticalSerializer();
         byte[] data = vSerializer.serialize(dsObjectArray);
-        assertEquals(163, data.length);
+        assertEquals(173, data.length);
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         assertEquals(10, byteBuffer.getInt());
         for (int i = 0; i < encapsulatedDatas.length; i++) {
+            assertEquals(1, byteBuffer.get());
             assertEquals(encapsulatedDatas[i].a, byteBuffer.getLong());
             assertEquals(i, byteBuffer.getInt());
             assertEquals(0xf, byteBuffer.get());

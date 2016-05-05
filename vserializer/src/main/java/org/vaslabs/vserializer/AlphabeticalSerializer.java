@@ -37,16 +37,18 @@ public class AlphabeticalSerializer extends StringSerializer {
     public <T> byte[] serialize(T[] objects) {
         if (objects.length == 0)
             return new byte[0];
-        final Field[] fields = objects[0].getClass().getDeclaredFields();
-        final int sizeOfSingleObject = SerializationUtils.calculateSize(fields, objects[0]);
-        final int totalSize = sizeOfSingleObject*objects.length + 4;
+        final int totalSize = SerializationUtils.calculateNonPrimitiveArraySize(objects);
         ByteBuffer byteBuffer = ByteBuffer.allocate(totalSize);
         byteBuffer.putInt(objects.length);
         for (T obj : objects) {
             try {
-                putIn(byteBuffer, fields, obj);
+                if (obj != null) {
+                    byteBuffer.put((byte) 1);
+                    putIn(byteBuffer, obj.getClass().getDeclaredFields(), obj);
+                } else {
+                    byteBuffer.put((byte) -1);
+                }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
                 return new byte[0];
             }
         }
@@ -78,6 +80,11 @@ public class AlphabeticalSerializer extends StringSerializer {
         T[] objects = (T[]) Array.newInstance(type, arraySize);
         final Field[] fields = type.getDeclaredFields();
         for (int i = 0; i < objects.length; i++) {
+            boolean objectIsNull = byteBuffer.get() == -1;
+            if (objectIsNull) {
+                objects[i] = null;
+                continue;
+            }
             T obj = null;
             try {
                 obj = (T) SerializationUtils.instantiate(type);
@@ -132,7 +139,7 @@ public class AlphabeticalSerializer extends StringSerializer {
                 this.convertString(byteBuffer, field, obj);
                 return;
             }
-            boolean isNull = 0 == byteBuffer.get();
+            boolean isNull = -1 == byteBuffer.get();
             if (isNull) {
                 field.set(obj, null);
                 return;
@@ -237,6 +244,10 @@ public class AlphabeticalSerializer extends StringSerializer {
         T[] objects = (T[]) Array.newInstance(type, arraySize);
         final Field[] fields = type.getDeclaredFields();
         for (int i = 0; i < objects.length; i++) {
+            if (byteBuffer.get() == -1) {
+                objects[i] = null;
+                continue;
+            }
             T obj = null;
             try {
                 obj = (T) SerializationUtils.instantiate(type);
@@ -263,10 +274,10 @@ public class AlphabeticalSerializer extends StringSerializer {
         for (Field field : fields) {
             if (Modifier.isStatic(field.getModifiers()))
                 continue;
-            field.setAccessible(true);
             try {
+                SerializationUtils.arrangeField(field, obj);
                 putIn(byteBuffer, field, obj);
-            } catch (IllegalAccessException iae) {
+            } catch (NoSuchFieldException nsfe) {
 
             }
             field.setAccessible(false);
@@ -274,6 +285,8 @@ public class AlphabeticalSerializer extends StringSerializer {
     }
 
     private void putIn(ByteBuffer byteBuffer, Field field, Object obj) throws IllegalAccessException {
+        if (obj == null)
+            return;
         Class type = field.getType();
         if (type.isArray()) {
             putArrayIn(byteBuffer, field, obj);
@@ -287,7 +300,7 @@ public class AlphabeticalSerializer extends StringSerializer {
             }
             Object fieldObject = field.get(obj);
             if (fieldObject == null) {
-                byteBuffer.put((byte) 0);
+                byteBuffer.put((byte) -1);
                 return;
             } else {
                 byteBuffer.put((byte) 1);
@@ -383,7 +396,12 @@ public class AlphabeticalSerializer extends StringSerializer {
 
         Field[] fields = objects[0].getClass().getDeclaredFields();
         for (Object object : objects) {
-            putIn(byteBuffer, fields, object);
+            if (object == null) {
+                byteBuffer.put((byte) -1);
+            } else {
+                byteBuffer.put((byte) 1);
+                putIn(byteBuffer, fields, object);
+            }
         }
     }
 

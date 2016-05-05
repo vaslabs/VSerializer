@@ -117,10 +117,13 @@ public class SerializationUtils {
         }
         int sizeSum = 0;
         for (Object object : objects) {
-            Class type = objects[0].getClass();
+            if (object == null) {
+                continue;
+            }
+            Class type = object.getClass();
             sizeSum += calculateSize(type.getDeclaredFields(), object);
         }
-        return sizeSum;
+        return sizeSum + objects.length;
     }
 
 
@@ -180,5 +183,17 @@ public class SerializationUtils {
 
     public static void houseKeeping(Field field) throws IllegalAccessException, NoSuchFieldException {
         field.setAccessible(false);
+    }
+
+    public static <T> int calculateNonPrimitiveArraySize(T[] objects) {
+        final Field[] fields = objects[0].getClass().getDeclaredFields();
+        final int sizeOfSingleObject = SerializationUtils.calculateSize(fields, objects[0]);
+
+        int totalSize = objects.length + 4;
+        for (T object : objects) {
+            if (object != null)
+                totalSize += sizeOfSingleObject;
+        }
+        return totalSize;
     }
 }
