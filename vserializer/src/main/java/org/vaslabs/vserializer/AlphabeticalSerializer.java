@@ -118,7 +118,7 @@ public class AlphabeticalSerializer extends StringSerializer {
         return obj;
     }
 
-    public static <T> void convert(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchMethodException, InstantiationException, InvocationTargetException {
+    public static <T> void convert(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchMethodException, InstantiationException, InvocationTargetException, NoSuchFieldException {
         Class fieldType = field.getType();
         if (fieldType.isArray()) {
             convertArray(byteBuffer, field, obj);
@@ -174,11 +174,13 @@ public class AlphabeticalSerializer extends StringSerializer {
         }
     }
 
-    private static <T> void convertArray(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException {
-        int arrayLength = byteBuffer.getInt();
+    private static <T> void convertArray(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchFieldException {
         Class fieldType = field.getType();
-        if (!SerializationUtils.enumTypes.containsKey(fieldType))
+        if (!SerializationUtils.enumTypes.containsKey(fieldType)) {
+            convertNonPrimitiveArray(byteBuffer, field, obj);
             return;
+        }
+        final int arrayLength = byteBuffer.getInt();
         switch (SerializationUtils.enumTypes.get(fieldType)) {
             case INT: {
                 int[] array = new int[arrayLength];
@@ -216,6 +218,27 @@ public class AlphabeticalSerializer extends StringSerializer {
                 return;
             }
         }
+    }
+
+    private static <T> void convertNonPrimitiveArray(ByteBuffer byteBuffer, final Field field, T object) throws IllegalAccessException, NoSuchFieldException {
+        final int arraySize = byteBuffer.getInt();
+        Class type = field.getType().getComponentType();
+        T[] objects = (T[]) Array.newInstance(type, arraySize);
+        final Field[] fields = type.getDeclaredFields();
+        for (int i = 0; i < objects.length; i++) {
+            T obj = null;
+            try {
+                obj = (T) SerializationUtils.instantiate(type);
+                obj = convert(byteBuffer, fields, obj);
+                objects[i] = obj;
+            } catch (Exception e) {
+
+            }
+        }
+        SerializationUtils.arrangeField(field, object);
+        field.set(object, objects);
+        SerializationUtils.houseKeeping(field);
+
     }
 
     private void putIn(ByteBuffer byteBuffer, Field[] fields, Object obj) throws IllegalAccessException {
@@ -338,8 +361,15 @@ public class AlphabeticalSerializer extends StringSerializer {
         }
     }
 
-    private void insertArrayValuesNonPrimitive(ByteBuffer byteBuffer, Field field, Object obj) {
+    private void insertArrayValuesNonPrimitive(ByteBuffer byteBuffer, Field field, Object obj) throws IllegalAccessException {
+        Object[] objects = (Object[]) field.get(obj);
+        if (objects == null || objects.length == 0)
+            return;
 
+        Field[] fields = objects[0].getClass().getDeclaredFields();
+        for (Object object : objects) {
+            putIn(byteBuffer, fields, object);
+        }
     }
 
 }

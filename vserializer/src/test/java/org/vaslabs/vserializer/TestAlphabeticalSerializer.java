@@ -183,6 +183,19 @@ public class TestAlphabeticalSerializer {
         VSerializer vSerializer = new AlphabeticalSerializer();
         byte[] data = vSerializer.serialize(dsObjectArray);
         assertEquals(163, data.length);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        assertEquals(10, byteBuffer.getInt());
+        for (int i = 0; i < encapsulatedDatas.length; i++) {
+            assertEquals(encapsulatedDatas[i].a, byteBuffer.getLong());
+            assertEquals(i, byteBuffer.getInt());
+            assertEquals(0xf, byteBuffer.get());
+            assertEquals(0xff, byteBuffer.getShort());
+        }
+        assertEquals(0, byteBuffer.get());
+        assertEquals(dsObjectArray.value, byteBuffer.getLong());
+
+        TestUtils.DataStructureWithObjectArray recoveredDsObjectArray = vSerializer.deserialise(data, TestUtils.DataStructureWithObjectArray.class);
+        assertEquals(recoveredDsObjectArray.encapsulatedDatas.length, recoveredDsObjectArray.encapsulatedDatas.length);
 
     }
 
