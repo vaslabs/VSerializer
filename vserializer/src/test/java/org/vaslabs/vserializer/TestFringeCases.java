@@ -132,7 +132,6 @@ public class TestFringeCases {
         assertEquals(48204431, recoveredDsObjectArray.value);
     }
 
-    /*
     @Test
     public void test_null_and_0_length_primitive_arrays() {
         short[] shortValues = new short[0];
@@ -140,8 +139,11 @@ public class TestFringeCases {
         assertEquals(0, data.length);
         short[] recoveredShortValues = vSerializer.deserialise(data, short[].class);
         assertEquals(0, recoveredShortValues.length);
+        shortValues = null;
+        data = vSerializer.serialize(shortValues);
+        assertEquals(0, data.length);
+        recoveredShortValues = vSerializer.deserialise(data, short[].class);
+        assertEquals(0, recoveredShortValues.length);
     }
-
-    */
 
 }

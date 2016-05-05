@@ -15,6 +15,8 @@ public class AlphabeticalSerializer extends StringSerializer {
 
     @Override
     public <T> byte[] serialize(T obj) {
+        if (obj == null)
+            return new byte[0];
         if (obj.getClass().isArray()) {
             boolean isPrimitive = SerializationUtils.enumTypes.containsKey(obj.getClass());
             if (isPrimitive) {

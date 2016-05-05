@@ -234,4 +234,26 @@ public class TestAlphabeticalSerializer {
         }
     }
 
+    @Test
+    public void test_serialization_of_all_primitive_types() {
+        TestUtils.AllEncapsulatedData allEncapsulatedData = new TestUtils.AllEncapsulatedData();
+        allEncapsulatedData.a = -1L;
+        allEncapsulatedData.b = 1;
+        allEncapsulatedData.c = 127;
+        allEncapsulatedData.d = -32768;
+        allEncapsulatedData.e = true;
+        allEncapsulatedData.f = 'h';
+
+        byte[] data = vSerializer.serialize(allEncapsulatedData);
+
+        TestUtils.AllEncapsulatedData recoveredData = vSerializer.deserialise(data, TestUtils.AllEncapsulatedData.class);
+        assertEquals(allEncapsulatedData.a, recoveredData.a);
+        assertEquals(allEncapsulatedData.b, recoveredData.b);
+        assertEquals(allEncapsulatedData.c, recoveredData.c);
+        assertEquals(allEncapsulatedData.d, recoveredData.d);
+        assertEquals(allEncapsulatedData.e, recoveredData.e);
+        assertEquals(allEncapsulatedData.f, recoveredData.f);
+
+    }
+
 }
