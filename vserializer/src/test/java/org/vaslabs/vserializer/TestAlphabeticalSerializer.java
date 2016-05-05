@@ -166,6 +166,19 @@ public class TestAlphabeticalSerializer {
         jvmData = serializeObject(someString);
         System.out.println("VSerializer: " + data.length);
         System.out.println("JVM Serializer: " + jvmData.length);
+
+        System.out.println("Compare simple object array serialization");
+        EncapsulatedData[] encapsulatedDatas = new EncapsulatedData[10];
+        for (int i = 0; i < encapsulatedDatas.length; i++) {
+            encapsulatedDatas[i] = new EncapsulatedData();
+            initWithData(encapsulatedDatas[i]);
+            encapsulatedDatas[i].b = i;
+        }
+
+        data = vSerializer.serialize(encapsulatedDatas);
+        jvmData = serializeObject(encapsulatedDatas);
+        System.out.println("VSerializer: " + data.length);
+        System.out.println("JVM Serializer: " + jvmData.length);
     }
 
     @Test
@@ -257,7 +270,7 @@ public class TestAlphabeticalSerializer {
     }
 
 
-    public static class EncapsulatedData {
+    public static class EncapsulatedData implements Serializable {
         private long a;// = 0xff121212;
         private int b;// = 0x1111;
         private short d;// = 0xff;
