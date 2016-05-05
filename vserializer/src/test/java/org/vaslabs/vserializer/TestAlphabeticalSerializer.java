@@ -152,6 +152,20 @@ public class TestAlphabeticalSerializer {
         jvmData = serializeObject(someString);
         System.out.println("VSerializer: " + data.length);
         System.out.println("JVM Serializer: " + jvmData.length);
+
+
+        System.out.println("Compare string serialization all characters");
+        char[] chars = new char[65000];
+        for (char c = 0; c < chars.length; c++) {
+            chars[c] = c;
+        }
+        someString = new String(chars);
+
+        vSerializer = new AlphabeticalSerializer();
+        data = vSerializer.serialize(someString);
+        jvmData = serializeObject(someString);
+        System.out.println("VSerializer: " + data.length);
+        System.out.println("JVM Serializer: " + jvmData.length);
     }
 
     @Test
@@ -171,6 +185,21 @@ public class TestAlphabeticalSerializer {
         byte[] data = vSerializer.serialize(someString);
         String recoveredString = vSerializer.deserialise(data, String.class);
         assertEquals(someString, recoveredString);
+
+        someString = "" + (char)5384 + (char)4382;
+        data = vSerializer.serialize(someString);
+        recoveredString = vSerializer.deserialise(data, String.class);
+        assertEquals(someString, recoveredString);
+
+        char[] chars = new char[65000];
+        for (char c = 0; c < chars.length; c++) {
+            chars[c] = c;
+        }
+        someString = new String(chars);
+        data = vSerializer.serialize(someString);
+        recoveredString = vSerializer.deserialise(data, String.class);
+        assertEquals(someString, recoveredString);
+
     }
 
     private void initWithData(EncapsulatedData myTestObject) {

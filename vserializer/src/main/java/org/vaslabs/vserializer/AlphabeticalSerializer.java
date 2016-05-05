@@ -300,8 +300,25 @@ class StringSerializer implements VSerializer {
     public <T> byte[] serialize(T myTestObject) {
         if (!(myTestObject instanceof String))
             throw new IllegalArgumentException("Only Strings are supported");
+        char[] chars = ((String)myTestObject).toCharArray();
+        return toBytes(chars);
+    }
 
-        return ((String) myTestObject).getBytes();
+    private byte[] toBytes(char[] chars) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(chars.length*2);
+        for (char c : chars) {
+            byteBuffer.putChar(c);
+        }
+        return byteBuffer.array();
+    }
+
+    private char[] toChars(byte[] bytes) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        char[] chars = new char[bytes.length / 2];
+        for (int i = 0; i < chars.length; i++) {
+            chars[i] = byteBuffer.getChar();
+        }
+        return chars;
     }
 
     @Override
@@ -309,6 +326,6 @@ class StringSerializer implements VSerializer {
         if (!clazz.equals(String.class)) {
             throw new IllegalArgumentException("Only Strings are supported");
         }
-        return (T) new String(data);
+        return (T) new String(toChars(data));
     }
 }
