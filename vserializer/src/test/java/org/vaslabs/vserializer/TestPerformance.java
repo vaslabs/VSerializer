@@ -2,7 +2,6 @@ package org.vaslabs.vserializer;
 
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
-import static org.vaslabs.vserializer.TestUtils.initWithData;
 import static org.vaslabs.vserializer.TestUtils.serializeObject;
 
 /**
@@ -10,16 +9,17 @@ import static org.vaslabs.vserializer.TestUtils.serializeObject;
  */
 public class TestPerformance {
 
+    VSerializer vSerializer = new AlphabeticalSerializer();
+
     @Test
     public void measureDifferenceFromVM() {
-        VSerializer serializer = new AlphabeticalSerializer();
         TestUtils.ComplexDataStructure cds = new TestUtils.ComplexDataStructure();
         cds.a = 0xff;
         cds.b = -1;
         cds.somethingElse = new TestUtils.ComplexDataStructure();
         cds.somethingElse.a = -2;
         cds.somethingElse.b = 5;
-        byte[] data = serializer.serialize(cds);
+        byte[] data = vSerializer.serialize(cds);
 
         byte[] jvmData = serializeObject(cds);
 
@@ -37,7 +37,7 @@ public class TestPerformance {
 
         dataStructureWithArray.somethingElse = true;
         dataStructureWithArray.value = 0xff11223344L;
-        data = serializer.serialize(dataStructureWithArray);
+        data = vSerializer.serialize(dataStructureWithArray);
         jvmData = serializeObject(dataStructureWithArray);
 
         System.out.println("VSerializer: " + data.length);
@@ -46,7 +46,6 @@ public class TestPerformance {
 
         System.out.println("Compare string serialization");
         String someString = "Hello world";
-        VSerializer vSerializer = new AlphabeticalSerializer();
         data = vSerializer.serialize(someString);
         jvmData = serializeObject(someString);
         System.out.println("VSerializer: " + data.length);
@@ -60,7 +59,6 @@ public class TestPerformance {
         }
         someString = new String(chars);
 
-        vSerializer = new AlphabeticalSerializer();
         data = vSerializer.serialize(someString);
         jvmData = serializeObject(someString);
         System.out.println("VSerializer: " + data.length);

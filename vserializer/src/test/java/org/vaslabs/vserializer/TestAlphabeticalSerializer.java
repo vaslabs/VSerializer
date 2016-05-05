@@ -19,15 +19,16 @@ import static org.vaslabs.vserializer.TestUtils.initWithData;
  */
 public class TestAlphabeticalSerializer {
 
+    VSerializer vSerializer = new AlphabeticalSerializer();
+
 
     @Test
     public void test_serializing_deserializing_by_alphabetical_order() throws Exception {
-        VSerializer serializer = new AlphabeticalSerializer();
 
         TestUtils.EncapsulatedData myTestObject = new TestUtils.EncapsulatedData();
 
         initWithData(myTestObject);
-        byte[] data = serializer.serialize(myTestObject);
+        byte[] data = vSerializer.serialize(myTestObject);
         assertEquals(15, data.length);
 
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
@@ -38,7 +39,7 @@ public class TestAlphabeticalSerializer {
         assertEquals(myTestObject.c, byteBuffer.get());
         assertEquals(myTestObject.d, byteBuffer.getShort());
 
-        TestUtils.EncapsulatedData encapsulatedData = serializer.deserialise(data, TestUtils.EncapsulatedData.class);
+        TestUtils.EncapsulatedData encapsulatedData = vSerializer.deserialise(data, TestUtils.EncapsulatedData.class);
         assertNotNull(encapsulatedData);
         assertEquals(myTestObject.a, encapsulatedData.a);
         assertEquals(myTestObject.b, encapsulatedData.b);
@@ -48,7 +49,6 @@ public class TestAlphabeticalSerializer {
 
     @Test
     public void test_complex_serialisation_deserialisation() {
-        VSerializer serializer = new AlphabeticalSerializer();
         TestUtils.ComplexDataStructure cds = new TestUtils.ComplexDataStructure();
         cds.a = 0xff;
         cds.b = -1;
@@ -60,14 +60,14 @@ public class TestAlphabeticalSerializer {
 
         assertEquals(26, size);
 
-        byte[] data = serializer.serialize(cds);
+        byte[] data = vSerializer.serialize(cds);
         assertEquals(26, data.length);
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         assertEquals(cds.a, byteBuffer.getLong());
         assertEquals(cds.b, byteBuffer.getInt());
         assertEquals(1, byteBuffer.get());
 
-        cds = serializer.deserialise(data, TestUtils.ComplexDataStructure.class);
+        cds = vSerializer.deserialise(data, TestUtils.ComplexDataStructure.class);
 
         assertEquals(0xff, cds.a);
         assertEquals(-1, cds.b);
@@ -90,7 +90,6 @@ public class TestAlphabeticalSerializer {
         dataStructureWithArray.value = 0xff11223344L;
 
         assertEquals(33, SerializationUtils.calculateSize(dataStructureWithArray.getClass().getDeclaredFields(), dataStructureWithArray));
-        VSerializer vSerializer = new AlphabeticalSerializer();
         byte[] data = vSerializer.serialize(dataStructureWithArray);
         assertEquals(33, data.length);
 
@@ -115,7 +114,6 @@ public class TestAlphabeticalSerializer {
     @Test
     public void test_serialization_deserialization_with_final_values() {
         TestUtils.FinalEncapsulatedData finalEncapsulatedData = new TestUtils.FinalEncapsulatedData(1L, 2, (short)3, (byte)4);
-        VSerializer vSerializer = new AlphabeticalSerializer();
         byte[] data = vSerializer.serialize(finalEncapsulatedData);
 
         TestUtils.FinalEncapsulatedData finalEncapsulatedData1 = vSerializer.deserialise(data, TestUtils.FinalEncapsulatedData.class);
@@ -125,7 +123,6 @@ public class TestAlphabeticalSerializer {
     @Test
     public void test_string_serialization_deserialization() {
         String someString = "Hello world";
-        VSerializer vSerializer = new AlphabeticalSerializer();
         byte[] data = vSerializer.serialize(someString);
         String recoveredString = vSerializer.deserialise(data, String.class);
         assertEquals(someString, recoveredString);
@@ -150,7 +147,6 @@ public class TestAlphabeticalSerializer {
     public void test_serialization_of_object_arrays() {
         TestUtils.EncapsulatedData[] encapsulatedDatas = TestUtils.initEncapsulatedDataArray();
 
-        VSerializer vSerializer = new AlphabeticalSerializer();
         byte[] data = vSerializer.serialize(encapsulatedDatas);
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         int size = byteBuffer.getInt();
@@ -181,7 +177,6 @@ public class TestAlphabeticalSerializer {
         dsObjectArray.encapsulatedDatas = encapsulatedDatas;
         dsObjectArray.somethingElse = false;
         dsObjectArray.value = 48204431L;
-        VSerializer vSerializer = new AlphabeticalSerializer();
         byte[] data = vSerializer.serialize(dsObjectArray);
         assertEquals(173, data.length);
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
@@ -208,7 +203,6 @@ public class TestAlphabeticalSerializer {
         internalStrings.myOtherMessage = "My Other Message";
         internalStrings.myNumber = -255;
 
-        VSerializer vSerializer = new AlphabeticalSerializer();
         assertEquals(internalStrings.myMessage.length()*2 + internalStrings.myOtherMessage.length()*2 + 4 + 8,
                 SerializationUtils.calculateSize(TestUtils.InternalStrings.class.getDeclaredFields(), internalStrings));
 
