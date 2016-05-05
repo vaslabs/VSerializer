@@ -1,5 +1,7 @@
 package org.vaslabs.vserializer;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -33,9 +35,31 @@ public class AlphabeticalSerializer extends StringSerializer {
     }
 
     @Override
-    public <T, E extends Class<T>> T deserialise(byte[] data, E clazz) {
+    public <T> byte[] serialize(T[] objects) {
+        if (objects.length == 0)
+            return new byte[0];
+        final Field[] fields = objects[0].getClass().getDeclaredFields();
+        final int sizeOfSingleObject = SerializationUtils.calculateSize(fields, objects[0]);
+        final int totalSize = sizeOfSingleObject*objects.length + 4;
+        ByteBuffer byteBuffer = ByteBuffer.allocate(totalSize);
+        byteBuffer.putInt(objects.length);
+        for (T obj : objects) {
+            try {
+                putIn(byteBuffer, fields, obj);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+                return new byte[0];
+            }
+        }
+        return byteBuffer.array();
+    }
+
+    @Override
+    public <T> T deserialise(byte[] data, Class<T> clazz) {
         if (clazz.equals(String.class))
             return super.deserialise(data, clazz);
+        if (clazz.isArray())
+            return deserialiseArray(data, clazz);
         Field[] fields = clazz.getDeclaredFields();
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         T obj = null;
@@ -46,6 +70,25 @@ public class AlphabeticalSerializer extends StringSerializer {
             return obj;
         }
         return obj;
+    }
+
+    private <T> T deserialiseArray(byte[] data, Class<T> clazz) {
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        final int arraySize = byteBuffer.getInt();
+        Class type = clazz.getComponentType();
+        T[] objects = (T[]) Array.newInstance(type, arraySize);
+        final Field[] fields = type.getDeclaredFields();
+        for (int i = 0; i < objects.length; i++) {
+            T obj = null;
+            try {
+                obj = (T) SerializationUtils.instantiate(type);
+                obj = convert(byteBuffer, fields, obj);
+                objects[i] = obj;
+            } catch (Exception e) {
+
+            }
+        }
+        return (T) objects;
     }
 
     public static <T> T convert(ByteBuffer byteBuffer, Field[] fields, T obj) throws NoSuchMethodException, InvocationTargetException, InstantiationException {
@@ -295,7 +338,7 @@ public class AlphabeticalSerializer extends StringSerializer {
 
 }
 
-class StringSerializer implements VSerializer {
+abstract class StringSerializer implements VSerializer {
     @Override
     public <T> byte[] serialize(T myTestObject) {
         if (!(myTestObject instanceof String))
@@ -322,7 +365,7 @@ class StringSerializer implements VSerializer {
     }
 
     @Override
-    public <T, E extends Class<T>> T deserialise(byte[] data, E clazz) {
+    public <T> T deserialise(byte[] data, Class<T> clazz) {
         if (!clazz.equals(String.class)) {
             throw new IllegalArgumentException("Only Strings are supported");
         }

@@ -5,7 +5,9 @@ package org.vaslabs.vserializer;
  */
 public interface VSerializer {
 
-    <T> byte[] serialize(T myTestObject);
+    <T> byte[] serialize(T obj);
 
-    <T, E extends Class<T>> T deserialise(byte[] data, E clazz);
+    <T> byte[] serialize(T[] objects);
+
+    <T> T deserialise(byte[] data, Class<T> clazz);
 }

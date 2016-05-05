@@ -202,6 +202,37 @@ public class TestAlphabeticalSerializer {
 
     }
 
+    @Test
+    public void test_serialization_of_object_arrays() {
+        EncapsulatedData[] encapsulatedDatas = new EncapsulatedData[10];
+        for (int i = 0; i < encapsulatedDatas.length; i++) {
+            encapsulatedDatas[i] = new EncapsulatedData();
+            initWithData(encapsulatedDatas[i]);
+            encapsulatedDatas[i].b = i;
+        }
+
+        VSerializer vSerializer = new AlphabeticalSerializer();
+        byte[] data = vSerializer.serialize(encapsulatedDatas);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        int size = byteBuffer.getInt();
+        assertEquals(10, size);
+        for (int i = 0; i <encapsulatedDatas.length; i++) {
+            assertEquals(encapsulatedDatas[i].a, byteBuffer.getLong());
+            assertEquals(i, byteBuffer.getInt());
+            assertEquals(0xf, byteBuffer.get());
+            assertEquals(0xff, byteBuffer.getShort());
+        }
+
+        EncapsulatedData[] recoveredEncapsulatedData = vSerializer.deserialise(data, EncapsulatedData[].class);
+        assertEquals(10, recoveredEncapsulatedData.length);
+        for (int i = 0; i <recoveredEncapsulatedData.length; i++) {
+            assertEquals(encapsulatedDatas[i].a, recoveredEncapsulatedData[i].a);
+            assertEquals(i, recoveredEncapsulatedData[i].b);
+            assertEquals(0xf, recoveredEncapsulatedData[i].c);
+            assertEquals(0xff, recoveredEncapsulatedData[i].d);
+        }
+    }
+
     private void initWithData(EncapsulatedData myTestObject) {
         myTestObject.a = 0xff121212;
         myTestObject.b = 0x1111;
