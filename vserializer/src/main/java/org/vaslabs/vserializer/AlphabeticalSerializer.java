@@ -294,8 +294,10 @@ public class AlphabeticalSerializer extends StringSerializer {
 
     private void insertArrayValues(ByteBuffer byteBuffer, Field field, Object obj) throws IllegalAccessException {
         Class fieldType = field.getType();
-        if (!SerializationUtils.enumTypes.containsKey(fieldType))
+        if (!SerializationUtils.enumTypes.containsKey(fieldType)) {
+            insertArrayValuesNonPrimitive(byteBuffer, field, obj);
             return;
+        }
         switch (SerializationUtils.enumTypes.get(fieldType)) {
             case INT: {
                 int[] array = (int[]) field.get(obj);
@@ -334,6 +336,10 @@ public class AlphabeticalSerializer extends StringSerializer {
             default:
                 return;
         }
+    }
+
+    private void insertArrayValuesNonPrimitive(ByteBuffer byteBuffer, Field field, Object obj) {
+
     }
 
 }

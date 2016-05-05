@@ -1,5 +1,6 @@
 package org.vaslabs.vserializer;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -82,9 +83,13 @@ public class SerializationUtils {
 
             field.setAccessible(true);
             Class type = field.getType();
-            if (!sizes.containsKey(type))
-                return 0;
-            int consistentTypeSize = sizes.get(type);
+            final int consistentTypeSize;
+            if (!sizes.containsKey(type)) {
+                return sizeOfArrayType(field, obj);
+            }
+            else {
+                consistentTypeSize = sizes.get(type);
+            }
             int arraySize = findArrayLength(field, obj);
             field.setAccessible(false);
             return arraySize*consistentTypeSize;
@@ -93,7 +98,24 @@ public class SerializationUtils {
         }
     }
 
-    static int findArrayLength(Field field, Object obj) throws IllegalAccessException {
+    private static int sizeOfArrayType(Field field, Object obj) throws IllegalAccessException {
+        Object[] objects = (Object[]) field.get(obj);
+        if (objects == null || objects.length == 0) {
+            return 0;
+        }
+        int sizeSum = 0;
+        for (Object object : objects) {
+            Class type = objects[0].getClass();
+            sizeSum += calculateSize(type.getDeclaredFields(), object);
+        }
+        return sizeSum;
+    }
+
+
+    protected static int findArrayLength(Field field, Object obj) throws IllegalAccessException {
+        if (!enumTypes.containsKey(field.getType())) {
+            return findArrayLengthNonPrimitive(field, obj);
+        }
         switch (enumTypes.get(field.getType())) {
             case INT: {
                 int[] array = (int[]) field.get(obj);
@@ -122,6 +144,11 @@ public class SerializationUtils {
             default:
                 return 0;
         }
+    }
+
+    private static int findArrayLengthNonPrimitive(Field field, Object obj) throws IllegalAccessException {
+        Object[] objects = (Object[]) field.get(obj);
+        return objects.length;
     }
 
     public static int sizeOf(Field field) {

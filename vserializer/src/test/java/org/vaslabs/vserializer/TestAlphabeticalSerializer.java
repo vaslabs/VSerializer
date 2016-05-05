@@ -148,18 +148,14 @@ public class TestAlphabeticalSerializer {
 
     @Test
     public void test_serialization_of_object_arrays() {
-        TestUtils.EncapsulatedData[] encapsulatedDatas = new TestUtils.EncapsulatedData[10];
-        for (int i = 0; i < encapsulatedDatas.length; i++) {
-            encapsulatedDatas[i] = new TestUtils.EncapsulatedData();
-            initWithData(encapsulatedDatas[i]);
-            encapsulatedDatas[i].b = i;
-        }
+        TestUtils.EncapsulatedData[] encapsulatedDatas = TestUtils.initEncapsulatedDataArray();
 
         VSerializer vSerializer = new AlphabeticalSerializer();
         byte[] data = vSerializer.serialize(encapsulatedDatas);
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         int size = byteBuffer.getInt();
         assertEquals(10, size);
+        assertEquals(154, data.length);
         for (int i = 0; i <encapsulatedDatas.length; i++) {
             assertEquals(encapsulatedDatas[i].a, byteBuffer.getLong());
             assertEquals(i, byteBuffer.getInt());
@@ -175,6 +171,19 @@ public class TestAlphabeticalSerializer {
             assertEquals(0xf, recoveredEncapsulatedData[i].c);
             assertEquals(0xff, recoveredEncapsulatedData[i].d);
         }
+    }
+
+    @Test
+    public void test_serialization_of_inner_object_arrays() {
+        TestUtils.EncapsulatedData[] encapsulatedDatas = TestUtils.initEncapsulatedDataArray();
+        TestUtils.DataStructureWithObjectArray dsObjectArray = new TestUtils.DataStructureWithObjectArray();
+        dsObjectArray.encapsulatedDatas = encapsulatedDatas;
+        dsObjectArray.somethingElse = false;
+        dsObjectArray.value = 48204431L;
+        VSerializer vSerializer = new AlphabeticalSerializer();
+        byte[] data = vSerializer.serialize(dsObjectArray);
+        assertEquals(163, data.length);
+
     }
 
 }

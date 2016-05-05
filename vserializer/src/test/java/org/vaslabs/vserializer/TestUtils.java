@@ -32,6 +32,16 @@ public class TestUtils {
 
     }
 
+    public static EncapsulatedData[] initEncapsulatedDataArray() {
+        EncapsulatedData[] encapsulatedDatas = new TestUtils.EncapsulatedData[10];
+        for (int i = 0; i < encapsulatedDatas.length; i++) {
+            encapsulatedDatas[i] = new TestUtils.EncapsulatedData();
+            initWithData(encapsulatedDatas[i]);
+            encapsulatedDatas[i].b = i;
+        }
+        return encapsulatedDatas;
+    }
+
     public static class EncapsulatedData implements Serializable {
         protected long a;// = 0xff121212;
         protected int b;// = 0x1111;
@@ -67,6 +77,12 @@ public class TestUtils {
 
     public static class DataStructureWithArray implements Serializable{
         protected int[] numbers;
+        protected long value;
+        protected boolean somethingElse;
+    }
+
+    public static class DataStructureWithObjectArray implements Serializable{
+        protected EncapsulatedData[] encapsulatedDatas;
         protected long value;
         protected boolean somethingElse;
     }

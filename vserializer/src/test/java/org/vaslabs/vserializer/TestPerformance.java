@@ -67,13 +67,7 @@ public class TestPerformance {
         System.out.println("JVM Serializer: " + jvmData.length);
 
         System.out.println("Compare simple object array serialization");
-        TestUtils.EncapsulatedData[] encapsulatedDatas = new TestUtils.EncapsulatedData[10];
-        for (int i = 0; i < encapsulatedDatas.length; i++) {
-            encapsulatedDatas[i] = new TestUtils.EncapsulatedData();
-            initWithData(encapsulatedDatas[i]);
-            encapsulatedDatas[i].b = i;
-        }
-
+        TestUtils.EncapsulatedData[] encapsulatedDatas = TestUtils.initEncapsulatedDataArray();
         data = vSerializer.serialize(encapsulatedDatas);
         jvmData = serializeObject(encapsulatedDatas);
         System.out.println("VSerializer: " + data.length);
