@@ -15,6 +15,12 @@ public class AlphabeticalSerializer extends StringSerializer {
 
     @Override
     public <T> byte[] serialize(T obj) {
+        if (obj.getClass().isArray()) {
+            boolean isPrimitive = SerializationUtils.enumTypes.containsKey(obj.getClass());
+            if (isPrimitive) {
+                return SerializationUtils.toBytes(obj);
+            }
+        }
         if (obj instanceof String)
             return super.serialize(obj);
         final Field[] fields = obj.getClass().getDeclaredFields();
@@ -59,8 +65,14 @@ public class AlphabeticalSerializer extends StringSerializer {
     public <T> T deserialise(byte[] data, Class<T> clazz) {
         if (clazz.equals(String.class))
             return super.deserialise(data, clazz);
-        if (clazz.isArray())
-            return deserialiseArray(data, clazz);
+        if (clazz.isArray()) {
+            boolean isPrimitive = SerializationUtils.enumTypes.containsKey(clazz);
+            if (isPrimitive) {
+                return deserialisePrimitiveArray(data, clazz);
+            } else {
+                return deserialiseArray(data, clazz);
+            }
+        }
         Field[] fields = clazz.getDeclaredFields();
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         T obj = null;
@@ -73,9 +85,47 @@ public class AlphabeticalSerializer extends StringSerializer {
         return obj;
     }
 
+    protected <T> T deserialisePrimitiveArray(byte[] data, Class<T> clazz) {
+        int typeSize = SerializationUtils.sizes.get(clazz);
+        switch (SerializationUtils.enumTypes.get(clazz)) {
+            case INT: {
+                int[] array = new int[data.length/typeSize];
+                SerializationUtils.fromBytes(data, array);
+                return (T) array;
+            }
+            case LONG:{
+                long[] array = new long[data.length/typeSize];
+                SerializationUtils.fromBytes(data, array);
+                return (T) array;
+            }
+            case SHORT:{
+                short[] array = new short[data.length/typeSize];
+                SerializationUtils.fromBytes(data, array);
+                return (T) array;
+            }
+            case CHAR:{
+                char[] array = new char[data.length/typeSize];
+                SerializationUtils.fromBytes(data, array);
+                return (T) array;
+            }
+            case BOOLEAN:{
+                boolean[] array = new boolean[data.length/typeSize];
+                SerializationUtils.fromBytes(data, array);
+                return (T) array;
+            }
+            case BYTE:{
+                boolean[] array = new boolean[data.length/typeSize];
+                SerializationUtils.fromBytes(data, array);
+                return (T) array;
+            }
+
+        }
+        return null;
+    }
+
     private <T> T deserialiseArray(byte[] data, Class<T> clazz) {
         final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
-        final int arraySize = byteBuffer.getInt();
+        final int arraySize = data.length == 0 ? 0 : byteBuffer.getInt();
         Class type = clazz.getComponentType();
         T[] objects = (T[]) Array.newInstance(type, arraySize);
         final Field[] fields = type.getDeclaredFields();
@@ -354,44 +404,8 @@ public class AlphabeticalSerializer extends StringSerializer {
             insertArrayValuesNonPrimitive(byteBuffer, field, obj);
             return;
         }
-        switch (SerializationUtils.enumTypes.get(fieldType)) {
-            case INT: {
-                int[] array = (int[]) field.get(obj);
-                for (int i : array) { byteBuffer.putInt(i); }
-                return;
-            }
-            case LONG: {
-                long[] array = (long[]) field.get(obj);
-                for (long l : array) {
-                    byteBuffer.putLong(l);
-                }
-                return;
-            }
-            case SHORT: {
-                short[] array = (short[]) field.get(obj);
-                for (short s : array) { byteBuffer.putShort(s); }
-                return;
-            }
-            case BOOLEAN: {
-                boolean[] array = (boolean[]) field.get(obj);
-                for (boolean b : array) {
-                    byteBuffer.put((byte) (b ? 1 : 0));
-                }
-                return;
-            }
-            case BYTE: {
-                byte[] array = (byte[])field.get(obj);
-                for (byte b : array) { byteBuffer.put(b);}
-                return;
-            }
-            case CHAR: {
-                char[] array = (char[]) field.get(obj);
-                for (char c : array) {byteBuffer.putChar(c);}
-                return;
-            }
-            default:
-                return;
-        }
+        byte[] bytes = SerializationUtils.toBytes(field.get(obj));
+        byteBuffer.put(bytes);
     }
 
     private void insertArrayValuesNonPrimitive(ByteBuffer byteBuffer, Field field, Object obj) throws IllegalAccessException {

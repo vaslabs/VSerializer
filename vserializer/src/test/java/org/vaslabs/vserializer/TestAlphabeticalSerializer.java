@@ -219,4 +219,19 @@ public class TestAlphabeticalSerializer {
         assertEquals(internalStrings.myNumber, recoveredInternalStrings.myNumber);
     }
 
+    @Test
+    public void test_serialization_of_primitive_arrays() {
+        int[] array = new int[5];
+        for (int i = 0; i < array.length; i++) {
+            array[i]= i;
+        }
+        byte[] data = vSerializer.serialize(array);
+        assertEquals(20, data.length);
+        int[] recoveredArray = vSerializer.deserialise(data, int[].class);
+        assertEquals(array.length, recoveredArray.length);
+        for (int i = 0; i < array.length; i++) {
+            assertEquals(array[i], recoveredArray[i]);
+        }
+    }
+
 }

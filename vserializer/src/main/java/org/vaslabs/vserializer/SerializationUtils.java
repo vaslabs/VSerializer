@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -195,5 +196,87 @@ public class SerializationUtils {
                 totalSize += sizeOfSingleObject;
         }
         return totalSize;
+    }
+
+    protected static <T> byte[] toBytes(T obj) {
+        Class type = obj.getClass();
+        if (!type.isArray())
+            throw new IllegalArgumentException("Accepts only arrays");
+        if (!SerializationUtils.enumTypes.containsKey(type)) {
+            throw new IllegalArgumentException("Must be a primitive array");
+        }
+        final ByteBuffer byteBuffer;
+        int size = sizes.get(type);
+        switch (SerializationUtils.enumTypes.get(type)) {
+            case INT: {
+                int[] array = (int[]) obj;
+                byteBuffer = ByteBuffer.allocate(array.length*size);
+                for (int i : array) { byteBuffer.putInt(i); }
+                return byteBuffer.array();
+            }
+            case LONG: {
+                long[] array = (long[]) obj;
+                byteBuffer = ByteBuffer.allocate(array.length*size);
+                for (long l : array) {
+                    byteBuffer.putLong(l);
+                }
+                return byteBuffer.array();
+            }
+            case SHORT: {
+                short[] array = (short[]) obj;
+                byteBuffer = ByteBuffer.allocate(array.length*size);
+                for (short s : array) { byteBuffer.putShort(s); }
+                return byteBuffer.array();
+            }
+            case BOOLEAN: {
+                boolean[] array = (boolean[]) obj;
+                byteBuffer = ByteBuffer.allocate(array.length*size);
+                for (boolean b : array) {
+                    byteBuffer.put((byte) (b ? 1 : 0));
+                }
+                return byteBuffer.array();
+            }
+            case BYTE: {
+                byte[] array = (byte[])obj;
+                return array;
+            }
+            case CHAR: {
+                char[] array = (char[]) obj;
+                byteBuffer = ByteBuffer.allocate(array.length*size);
+                for (char c : array) {byteBuffer.putChar(c);}
+                return byteBuffer.array();
+            }
+        }
+        return null;
+    }
+
+    protected static void fromBytes(byte[] data, int[] preAllocatedValues) {
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        for (int i = 0; i<preAllocatedValues.length; i++) { preAllocatedValues[i] = byteBuffer.getInt();}
+    }
+
+    protected static void fromBytes(byte[] data, long[] preAllocatedValues) {
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        for (int i = 0; i<preAllocatedValues.length; i++) { preAllocatedValues[i] = byteBuffer.getLong();}
+    }
+
+    protected static void fromBytes(byte[] data, short[] preAllocatedValues) {
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        for (int i = 0; i<preAllocatedValues.length; i++) { preAllocatedValues[i] = byteBuffer.getShort();}
+    }
+
+    protected static void fromBytes(byte[] data, char[] preAllocatedValues) {
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        for (int i = 0; i<preAllocatedValues.length; i++) { preAllocatedValues[i] = byteBuffer.getChar();}
+    }
+
+    protected static void fromBytes(byte[] data, boolean[] preAllocatedValues) {
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        for (int i = 0; i<preAllocatedValues.length; i++) { preAllocatedValues[i] = byteBuffer.get() == 1;}
+    }
+
+    protected static void fromBytes(byte[] data, byte[] preAllocatedValues) {
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        for (int i = 0; i<preAllocatedValues.length; i++) { preAllocatedValues[i] = byteBuffer.get(); }
     }
 }
