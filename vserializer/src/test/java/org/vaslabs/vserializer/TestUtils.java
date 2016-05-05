@@ -87,4 +87,10 @@ public class TestUtils {
         protected boolean somethingElse;
     }
 
+    public static class InternalStrings {
+        protected String myMessage;
+        protected int myNumber;
+        protected String myOtherMessage;
+    }
+
 }

@@ -1,7 +1,6 @@
 package org.vaslabs.vserializer;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -91,7 +90,7 @@ public class AlphabeticalSerializer extends StringSerializer {
         return (T) objects;
     }
 
-    public static <T> T convert(ByteBuffer byteBuffer, Field[] fields, T obj) throws NoSuchMethodException, InvocationTargetException, InstantiationException {
+    public  <T> T convert(ByteBuffer byteBuffer, Field[] fields, T obj) throws NoSuchMethodException, InvocationTargetException, InstantiationException {
         Arrays.sort(fields, new Comparator<Field>() {
             @Override
             public int compare(Field lhs, Field rhs) {
@@ -118,8 +117,10 @@ public class AlphabeticalSerializer extends StringSerializer {
         return obj;
     }
 
-    public static <T> void convert(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchMethodException, InstantiationException, InvocationTargetException, NoSuchFieldException {
+    public <T> void convert(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchMethodException, InstantiationException, InvocationTargetException, NoSuchFieldException {
         Class fieldType = field.getType();
+        if (Modifier.isStatic(field.getModifiers()))
+            return;
         if (fieldType.isArray()) {
             convertArray(byteBuffer, field, obj);
             return;
@@ -127,11 +128,16 @@ public class AlphabeticalSerializer extends StringSerializer {
 
         PrimitiveType primitiveType = SerializationUtils.enumTypes.get(fieldType);
         if (primitiveType == null) {
+            if (String.class.equals(field.getType())) {
+                this.convertString(byteBuffer, field, obj);
+                return;
+            }
             boolean isNull = 0 == byteBuffer.get();
             if (isNull) {
                 field.set(obj, null);
                 return;
             } else {
+
                 Object innerObject = SerializationUtils.instantiate(field.getType());
                 field.set(obj, innerObject);
                 convert(byteBuffer, obj.getClass().getDeclaredFields(), innerObject);
@@ -174,8 +180,11 @@ public class AlphabeticalSerializer extends StringSerializer {
         }
     }
 
-    private static <T> void convertArray(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchFieldException {
+
+    private <T> void convertArray(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchFieldException {
         Class fieldType = field.getType();
+        if (Modifier.isStatic(field.getModifiers()))
+            return;
         if (!SerializationUtils.enumTypes.containsKey(fieldType)) {
             convertNonPrimitiveArray(byteBuffer, field, obj);
             return;
@@ -220,7 +229,9 @@ public class AlphabeticalSerializer extends StringSerializer {
         }
     }
 
-    private static <T> void convertNonPrimitiveArray(ByteBuffer byteBuffer, final Field field, T object) throws IllegalAccessException, NoSuchFieldException {
+    private <T> void convertNonPrimitiveArray(ByteBuffer byteBuffer, final Field field, T object) throws IllegalAccessException, NoSuchFieldException {
+        if (Modifier.isStatic(field.getModifiers()))
+            return;
         final int arraySize = byteBuffer.getInt();
         Class type = field.getType().getComponentType();
         T[] objects = (T[]) Array.newInstance(type, arraySize);
@@ -270,6 +281,10 @@ public class AlphabeticalSerializer extends StringSerializer {
         }
         PrimitiveType primitiveType = SerializationUtils.enumTypes.get(type);
         if (primitiveType == null) {
+            if (String.class.equals(type)) {
+                this.insertString(byteBuffer, field, obj);
+                return;
+            }
             Object fieldObject = field.get(obj);
             if (fieldObject == null) {
                 byteBuffer.put((byte) 0);
@@ -406,5 +421,23 @@ abstract class StringSerializer implements VSerializer {
             throw new IllegalArgumentException("Only Strings are supported");
         }
         return (T) new String(toChars(data));
+    }
+
+    protected <T> void convertString(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException {
+        final int stringLength = byteBuffer.getInt();
+        final char[] stringChars = new char[stringLength];
+        for (int i = 0; i < stringLength; i++) {
+            stringChars[i] = byteBuffer.getChar();
+        }
+        String string = new String(stringChars);
+        field.set(obj, string);
+    }
+
+    protected <T> void insertString(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException {
+        String string = (String) field.get(obj);
+        byteBuffer.putInt(string.length());
+        char[] characters = string.toCharArray();
+        byte[] bytes = toBytes(characters);
+        byteBuffer.put(bytes);
     }
 }

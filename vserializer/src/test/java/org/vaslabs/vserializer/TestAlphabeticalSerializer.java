@@ -199,4 +199,23 @@ public class TestAlphabeticalSerializer {
 
     }
 
+    @Test
+    public void test_serialization_of_internal_strings() {
+        TestUtils.InternalStrings internalStrings = new TestUtils.InternalStrings();
+        internalStrings.myMessage = "My Message";
+        internalStrings.myOtherMessage = "My Other Message";
+        internalStrings.myNumber = -255;
+
+        VSerializer vSerializer = new AlphabeticalSerializer();
+        assertEquals(internalStrings.myMessage.length()*2 + internalStrings.myOtherMessage.length()*2 + 4 + 8,
+                SerializationUtils.calculateSize(TestUtils.InternalStrings.class.getDeclaredFields(), internalStrings));
+
+        byte[] data = vSerializer.serialize(internalStrings);
+        assertEquals(internalStrings.myMessage.length()*2 + internalStrings.myOtherMessage.length()*2 + 4 + 8, data.length);
+        TestUtils.InternalStrings recoveredInternalStrings = vSerializer.deserialise(data, TestUtils.InternalStrings.class);
+        assertEquals(internalStrings.myMessage, recoveredInternalStrings.myMessage);
+        assertEquals(internalStrings.myOtherMessage, recoveredInternalStrings.myOtherMessage);
+        assertEquals(internalStrings.myNumber, recoveredInternalStrings.myNumber);
+    }
+
 }

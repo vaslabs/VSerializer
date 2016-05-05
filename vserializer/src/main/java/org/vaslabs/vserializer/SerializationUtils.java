@@ -62,6 +62,15 @@ public class SerializationUtils {
                 continue;
             }
             else if (!field.getType().isPrimitive()) {
+                if (field.getType().equals(String.class)) {
+                    try {
+                        String string = (String) field.get(obj);
+                        size += 4 + string.length()*2;
+                        continue;
+                    } catch (IllegalAccessException e) {
+                        return 0;
+                    }
+                }
                 size += 1;
                 try {
                     field.setAccessible(true);
