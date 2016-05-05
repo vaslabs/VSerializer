@@ -256,4 +256,26 @@ public class TestAlphabeticalSerializer {
 
     }
 
+    @Test
+    public void test_serialization_of_all_primitive_array_types() {
+        TestUtils.AllEncapsulatedArrayData allEncapsulatedData = new TestUtils.AllEncapsulatedArrayData();
+        allEncapsulatedData.a = new long[] {-1L, 1L};
+        allEncapsulatedData.b = new int[] {1, -1};
+        allEncapsulatedData.c = new byte[] {127, -128};
+        allEncapsulatedData.d = new short[] {-32768, 32767};
+        allEncapsulatedData.e = new boolean[] {true, false, true};
+        allEncapsulatedData.f = new char[]{'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '!'};
+
+        byte[] data = vSerializer.serialize(allEncapsulatedData);
+
+        TestUtils.AllEncapsulatedArrayData recoveredData = vSerializer.deserialise(data, TestUtils.AllEncapsulatedArrayData.class);
+        assertTrue(Arrays.equals(allEncapsulatedData.a, recoveredData.a));
+        assertTrue(Arrays.equals(allEncapsulatedData.b, recoveredData.b));
+        assertTrue(Arrays.equals(allEncapsulatedData.c, recoveredData.c));
+        assertTrue(Arrays.equals(allEncapsulatedData.d, recoveredData.d));
+        assertTrue(Arrays.equals(allEncapsulatedData.e, recoveredData.e));
+        assertTrue(Arrays.equals(allEncapsulatedData.f, recoveredData.f));
+
+    }
+
 }

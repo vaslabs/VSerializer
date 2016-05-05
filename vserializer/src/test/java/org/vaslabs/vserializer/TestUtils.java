@@ -102,4 +102,13 @@ public class TestUtils {
         protected char f;
     }
 
+    public static class AllEncapsulatedArrayData implements Serializable {
+        protected long[] a;// = 0xff121212;
+        protected int[] b;// = 0x1111;
+        protected short[] d;// = 0xff;
+        protected byte[] c;// = 0xf;
+        protected boolean[] e;
+        protected char[] f;
+    }
+
 }
