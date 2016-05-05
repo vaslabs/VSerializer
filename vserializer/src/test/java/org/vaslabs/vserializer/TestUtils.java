@@ -87,7 +87,7 @@ public class TestUtils {
         protected boolean somethingElse;
     }
 
-    public static class InternalStrings {
+    public static class InternalStrings implements Serializable{
         protected String myMessage;
         protected int myNumber;
         protected String myOtherMessage;

@@ -71,4 +71,16 @@ public class TestPerformance {
         System.out.println("VSerializer: " + data.length);
         System.out.println("JVM Serializer: " + jvmData.length);
     }
+
+    @Test
+    public void test_encapsulated_strings_performance() {
+        TestUtils.InternalStrings internalStrings = new TestUtils.InternalStrings();
+        internalStrings.myMessage = "My Message";
+        internalStrings.myOtherMessage = "My Other Message";
+        internalStrings.myNumber = -255;
+        byte[] data = vSerializer.serialize(internalStrings);
+        byte[] jvmData = serializeObject(internalStrings);
+        System.out.println("VSerializer: " + data.length);
+        System.out.println("JVM Serializer: " + jvmData.length);
+    }
 }
