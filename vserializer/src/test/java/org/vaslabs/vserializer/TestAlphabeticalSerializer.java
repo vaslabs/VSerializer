@@ -192,8 +192,13 @@ public class TestAlphabeticalSerializer {
         assertEquals(dsObjectArray.value, byteBuffer.getLong());
 
         TestUtils.DataStructureWithObjectArray recoveredDsObjectArray = vSerializer.deserialise(data, TestUtils.DataStructureWithObjectArray.class);
-        assertEquals(recoveredDsObjectArray.encapsulatedDatas.length, recoveredDsObjectArray.encapsulatedDatas.length);
-
+        assertEquals(dsObjectArray.encapsulatedDatas.length, recoveredDsObjectArray.encapsulatedDatas.length);
+        for (int i = 0; i < dsObjectArray.encapsulatedDatas.length; i++) {
+            assertEquals(dsObjectArray.encapsulatedDatas[i].a, recoveredDsObjectArray.encapsulatedDatas[i].a);
+            assertEquals(dsObjectArray.encapsulatedDatas[i].b, recoveredDsObjectArray.encapsulatedDatas[i].b);
+            assertEquals(dsObjectArray.encapsulatedDatas[i].c, recoveredDsObjectArray.encapsulatedDatas[i].c);
+            assertEquals(dsObjectArray.encapsulatedDatas[i].d, recoveredDsObjectArray.encapsulatedDatas[i].d);
+        }
     }
 
     @Test

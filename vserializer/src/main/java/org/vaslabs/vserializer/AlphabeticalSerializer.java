@@ -190,8 +190,6 @@ public class AlphabeticalSerializer extends StringSerializer {
 
     private <T> void convertArray(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchFieldException {
         Class fieldType = field.getType();
-        if (Modifier.isStatic(field.getModifiers()))
-            return;
         if (!SerializationUtils.enumTypes.containsKey(fieldType)) {
             convertNonPrimitiveArray(byteBuffer, field, obj);
             return;
@@ -240,6 +238,8 @@ public class AlphabeticalSerializer extends StringSerializer {
         if (Modifier.isStatic(field.getModifiers()))
             return;
         final int arraySize = byteBuffer.getInt();
+        if (arraySize == -1)
+            return;
         Class type = field.getType().getComponentType();
         T[] objects = (T[]) Array.newInstance(type, arraySize);
         final Field[] fields = type.getDeclaredFields();
@@ -334,6 +334,11 @@ public class AlphabeticalSerializer extends StringSerializer {
 
     private void putArrayIn(ByteBuffer byteBuffer, Field field, Object obj) {
         try {
+            Object array = field.get(obj);
+            if (array == null) {
+                byteBuffer.putInt(-1);
+                return;
+            }
             int arrayLength = SerializationUtils.findArrayLength(field, obj);
             byteBuffer.putInt(arrayLength);
             insertArrayValues(byteBuffer, field, obj);

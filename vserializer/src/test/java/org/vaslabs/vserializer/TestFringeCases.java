@@ -69,6 +69,68 @@ public class TestFringeCases {
         }
     }
 
+    @Test
+    public void test_serialization_of_inner_object_arrays_with_nulls() {
+        TestUtils.EncapsulatedData[] encapsulatedDatas = TestUtils.initEncapsulatedDataArray();
+        encapsulatedDatas[3] = null;
+        encapsulatedDatas[9] = null;
+
+        TestUtils.DataStructureWithObjectArray dsObjectArray = new TestUtils.DataStructureWithObjectArray();
+        dsObjectArray.encapsulatedDatas = encapsulatedDatas;
+        dsObjectArray.somethingElse = false;
+        dsObjectArray.value = 48204431L;
+        byte[] data = vSerializer.serialize(dsObjectArray);
+
+        assertEquals(143, data.length);
+
+        TestUtils.DataStructureWithObjectArray recoveredDsObjectArray = vSerializer.deserialise(data, TestUtils.DataStructureWithObjectArray.class);
+
+        assertEquals(dsObjectArray.encapsulatedDatas.length, recoveredDsObjectArray.encapsulatedDatas.length);
+
+        assertEquals(dsObjectArray.value, recoveredDsObjectArray.value);
+        assertEquals(dsObjectArray.somethingElse, recoveredDsObjectArray.somethingElse);
+
+        for (int i = 0; i < dsObjectArray.encapsulatedDatas.length; i++) {
+            if (i == 3 || i == 9) {
+                assertNull(recoveredDsObjectArray.encapsulatedDatas[i]);
+                continue;
+            }
+            assertEquals(dsObjectArray.encapsulatedDatas[i].a, recoveredDsObjectArray.encapsulatedDatas[i].a);
+            assertEquals(dsObjectArray.encapsulatedDatas[i].b, recoveredDsObjectArray.encapsulatedDatas[i].b);
+            assertEquals(dsObjectArray.encapsulatedDatas[i].c, recoveredDsObjectArray.encapsulatedDatas[i].c);
+            assertEquals(dsObjectArray.encapsulatedDatas[i].d, recoveredDsObjectArray.encapsulatedDatas[i].d);
+        }
+    }
+
+    @Test
+    public void test_null_inner_arrays() {
+        TestUtils.DataStructureWithObjectArray dsObjectArray = new TestUtils.DataStructureWithObjectArray();
+        dsObjectArray.encapsulatedDatas = null;
+        dsObjectArray.somethingElse = false;
+        dsObjectArray.value = 48204431L;
+        byte[] data = vSerializer.serialize(dsObjectArray);
+        assertEquals(13, data.length);
+        TestUtils.DataStructureWithObjectArray recoveredDsObjectArray =
+                vSerializer.deserialise(data, TestUtils.DataStructureWithObjectArray.class);
+        assertNull(recoveredDsObjectArray.encapsulatedDatas);
+        assertEquals(false, recoveredDsObjectArray.somethingElse);
+        assertEquals(48204431, recoveredDsObjectArray.value);
+    }
+
+    @Test
+    public void test_0_length_arrays() {
+        TestUtils.DataStructureWithObjectArray dsObjectArray = new TestUtils.DataStructureWithObjectArray();
+        dsObjectArray.encapsulatedDatas = new TestUtils.EncapsulatedData[0];
+        dsObjectArray.somethingElse = false;
+        dsObjectArray.value = 48204431L;
+        byte[] data = vSerializer.serialize(dsObjectArray);
+        assertEquals(13, data.length);
+        TestUtils.DataStructureWithObjectArray recoveredDsObjectArray =
+                vSerializer.deserialise(data, TestUtils.DataStructureWithObjectArray.class);
+        assertEquals(0, recoveredDsObjectArray.encapsulatedDatas.length);
+        assertEquals(false, recoveredDsObjectArray.somethingElse);
+        assertEquals(48204431, recoveredDsObjectArray.value);
+    }
 
 
 }
