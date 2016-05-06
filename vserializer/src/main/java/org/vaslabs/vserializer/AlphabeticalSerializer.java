@@ -160,6 +160,9 @@ public class AlphabeticalSerializer extends StringSerializer {
         for (Field field : fields) {
             if (Modifier.isStatic(field.getModifiers()))
                 continue;
+            if (Modifier.isTransient(field.getModifiers())) {
+                continue;
+            }
             try {
                 SerializationUtils.arrangeField(field, obj);
                 convert(byteBuffer, field, obj);
@@ -344,6 +347,8 @@ public class AlphabeticalSerializer extends StringSerializer {
         if (obj == null)
             return;
         Class type = field.getType();
+        if (Modifier.isTransient(field.getModifiers()))
+            return;
         if (type.isArray()) {
             putArrayIn(byteBuffer, field, obj);
             return;

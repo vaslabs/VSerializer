@@ -111,4 +111,9 @@ public class TestUtils {
         protected char[] f;
     }
 
+    public static class TransientData implements Serializable{
+        protected int myNumber;
+        protected transient int transientNumber;
+    }
+
 }
