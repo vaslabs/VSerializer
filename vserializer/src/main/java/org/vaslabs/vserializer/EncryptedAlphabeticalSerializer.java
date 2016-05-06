@@ -45,7 +45,7 @@ public class EncryptedAlphabeticalSerializer extends AlphabeticalSerializer {
     public <T> byte[] serialize(T[] objects) {
         byte[] data = super.serialize(objects);
         try {
-            encrypt(data);
+            data = encrypt(data);
         } catch (Exception e) {
             return null;
         }

@@ -67,6 +67,21 @@ public class TestEncryptedSerializer {
         assertNotNull(cds.somethingElse);
         assertEquals(-2, cds.somethingElse.a);
         assertEquals(5, cds.somethingElse.b);
+
+        TestUtils.EncapsulatedData[] encapsulatedDatas = TestUtils.initEncapsulatedDataArray();
+
+        data = localEncryptedAlphabeticalSerializer.serialize(encapsulatedDatas);
+
+        TestUtils.EncapsulatedData[] recoveredEncapsulatedData = remoteEncryptedAlphabeticalSerializer.deserialise(data, TestUtils.EncapsulatedData[].class);
+
+        assertEquals(10, recoveredEncapsulatedData.length);
+        for (int i = 0; i <recoveredEncapsulatedData.length; i++) {
+            assertEquals(encapsulatedDatas[i].a, recoveredEncapsulatedData[i].a);
+            assertEquals(i, recoveredEncapsulatedData[i].b);
+            assertEquals(0xf, recoveredEncapsulatedData[i].c);
+            assertEquals(0xff, recoveredEncapsulatedData[i].d);
+        }
+
     }
 
 
