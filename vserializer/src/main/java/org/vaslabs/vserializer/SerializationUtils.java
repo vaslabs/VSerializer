@@ -50,8 +50,8 @@ public class SerializationUtils {
         enumTypes = Collections.unmodifiableMap(enumTypes);
     }
 
-    public static <T, E extends Class<T>> T instantiate(E clazz) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Constructor<T> constructor = (Constructor<T>) clazz.getDeclaredConstructor();
+    public static <T> T instantiate(Class<T> clazz) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Constructor<T> constructor = clazz.getDeclaredConstructor();
         constructor.setAccessible(true);
         return constructor.newInstance(null);
     }
