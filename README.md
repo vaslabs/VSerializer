@@ -1,6 +1,36 @@
 # VSerializer
 A library to serialize and deserialize objects with minimum memory usage.
 
+# Gradle dependencies
+```
+allprojects {
+		repositories {
+			...
+			maven { url "https://jitpack.io" }
+		}
+}
+```
+
+```
+dependencies {
+    compile 'com.github.vaslabs:VSerializer:1.0'
+}
+```
+
+# Example
+```
+TestUtils.AllEncapsulatedData allEncapsulatedData = new TestUtils.AllEncapsulatedData();
+allEncapsulatedData.a = -1L;
+allEncapsulatedData.b = 1;
+allEncapsulatedData.c = 127;
+allEncapsulatedData.d = -32768;
+allEncapsulatedData.e = true;
+allEncapsulatedData.f = 'h';
+
+byte[] data = vSerializer.serialize(allEncapsulatedData);
+
+TestUtils.AllEncapsulatedData recoveredData = vSerializer.deserialise(data, TestUtils.AllEncapsulatedData.class);
+```
 # Motivation
 
 Memory on Android is precious. Every application should be using the minimum available memory both volatile and persistent.
@@ -29,7 +59,3 @@ following the examples in the unit test classes.
 # Use case
 - Any data structure that matches a timestamp with other primitive values would be highly optimised in terms of space when saving the data using this approach. You can save millions of key/value pairs for data like timestamp/location history graph.
 - Short lived cache data are in less danger to cause problems when you do class changes. You can benefit by reducing the memory usage in your caching mechanism and not worry much about versioning problems.
-
-# Try it out
-
-Follow instructions here https://jitpack.io/#vaslabs/VSerializer
