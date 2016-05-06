@@ -19,6 +19,7 @@ dependencies {
 
 # Example
 ```
+VSerializer vSerializer = new AlphabeticalSerializer();
 TestUtils.AllEncapsulatedData allEncapsulatedData = new TestUtils.AllEncapsulatedData();
 allEncapsulatedData.a = -1L;
 allEncapsulatedData.b = 1;
