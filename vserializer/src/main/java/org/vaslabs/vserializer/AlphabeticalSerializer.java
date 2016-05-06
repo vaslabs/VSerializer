@@ -150,7 +150,7 @@ public class AlphabeticalSerializer extends StringSerializer {
         return (T) objects;
     }
 
-    public  <T> T convert(ByteBuffer byteBuffer, Field[] fields, T obj) throws NoSuchMethodException, InvocationTargetException, InstantiationException {
+    protected  <T> T convert(ByteBuffer byteBuffer, Field[] fields, T obj) throws NoSuchMethodException, InvocationTargetException, InstantiationException {
         Arrays.sort(fields, new Comparator<Field>() {
             @Override
             public int compare(Field lhs, Field rhs) {
@@ -177,7 +177,7 @@ public class AlphabeticalSerializer extends StringSerializer {
         return obj;
     }
 
-    public <T> void convert(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchMethodException, InstantiationException, InvocationTargetException, NoSuchFieldException {
+    protected <T> void convert(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchMethodException, InstantiationException, InvocationTargetException, NoSuchFieldException {
         Class fieldType = field.getType();
         if (skipField(field))
             return;
