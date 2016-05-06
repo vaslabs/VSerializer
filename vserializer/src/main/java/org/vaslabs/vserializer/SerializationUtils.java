@@ -56,7 +56,7 @@ public class SerializationUtils {
     public static int calculateSize(Field[] fields, Object obj) {
         int size = 0;
         for (Field field : fields) {
-            if (Modifier.isTransient(field.getModifiers()))
+            if (skipField(field))
                 continue;
             if (field.getType().isArray()) {
                 size += 4 + sizeOfArray(field, obj);
@@ -198,6 +198,10 @@ public class SerializationUtils {
                 totalSize += sizeOfSingleObject;
         }
         return totalSize;
+    }
+
+    protected static boolean skipField(Field field) {
+        return Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers());
     }
 
     protected static <T> byte[] toBytes(T obj) {

@@ -116,4 +116,9 @@ public class TestUtils {
         protected transient int transientNumber;
     }
 
+    public static class StaticData implements Serializable{
+        protected int myNumber;
+        protected static int staticNumber;
+    }
+
 }

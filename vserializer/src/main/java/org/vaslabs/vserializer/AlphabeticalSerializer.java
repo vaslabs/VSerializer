@@ -3,10 +3,11 @@ package org.vaslabs.vserializer;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
+
+import static org.vaslabs.vserializer.SerializationUtils.skipField;
 
 /**
  * Created by vnicolaou on 02/05/16.
@@ -158,11 +159,8 @@ public class AlphabeticalSerializer extends StringSerializer {
         });
 
         for (Field field : fields) {
-            if (Modifier.isStatic(field.getModifiers()))
+            if (skipField(field))
                 continue;
-            if (Modifier.isTransient(field.getModifiers())) {
-                continue;
-            }
             try {
                 SerializationUtils.arrangeField(field, obj);
                 convert(byteBuffer, field, obj);
@@ -181,7 +179,7 @@ public class AlphabeticalSerializer extends StringSerializer {
 
     public <T> void convert(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchMethodException, InstantiationException, InvocationTargetException, NoSuchFieldException {
         Class fieldType = field.getType();
-        if (Modifier.isStatic(field.getModifiers()))
+        if (skipField(field))
             return;
         if (fieldType.isArray()) {
             convertArray(byteBuffer, field, obj);
@@ -294,7 +292,7 @@ public class AlphabeticalSerializer extends StringSerializer {
     }
 
     private <T> void convertNonPrimitiveArray(ByteBuffer byteBuffer, final Field field, T object) throws IllegalAccessException, NoSuchFieldException {
-        if (Modifier.isStatic(field.getModifiers()))
+        if (skipField(field))
             return;
         final int arraySize = byteBuffer.getInt();
         if (arraySize == -1)
@@ -331,7 +329,7 @@ public class AlphabeticalSerializer extends StringSerializer {
         });
 
         for (Field field : fields) {
-            if (Modifier.isStatic(field.getModifiers()))
+            if (skipField(field))
                 continue;
             try {
                 SerializationUtils.arrangeField(field, obj);
@@ -347,7 +345,7 @@ public class AlphabeticalSerializer extends StringSerializer {
         if (obj == null)
             return;
         Class type = field.getType();
-        if (Modifier.isTransient(field.getModifiers()))
+        if (skipField(field))
             return;
         if (type.isArray()) {
             putArrayIn(byteBuffer, field, obj);

@@ -189,4 +189,22 @@ public class TestFringeCases {
         assertEquals(0, recoveredTransientData.transientNumber);
     }
 
+    @Test
+    public void test_static_fields_not_serialized() {
+        TestUtils.StaticData staticData = new TestUtils.StaticData();
+        staticData.myNumber = 4;
+        TestUtils.StaticData.staticNumber = -1;
+        byte[] data = vSerializer.serialize(staticData);
+        assertEquals(4, data.length);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        assertEquals(4, byteBuffer.getInt());
+
+        TestUtils.StaticData.staticNumber = -111;
+        TestUtils.StaticData recoveredStaticData = vSerializer.deserialise(data, TestUtils.StaticData.class);
+
+        assertEquals(4, recoveredStaticData.myNumber);
+        assertEquals(-111, TestUtils.StaticData.staticNumber);
+
+    }
+
 }
