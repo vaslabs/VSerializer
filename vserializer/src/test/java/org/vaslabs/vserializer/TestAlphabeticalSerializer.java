@@ -275,6 +275,48 @@ public class TestAlphabeticalSerializer {
         assertTrue(Arrays.equals(allEncapsulatedData.d, recoveredData.d));
         assertTrue(Arrays.equals(allEncapsulatedData.e, recoveredData.e));
         assertTrue(Arrays.equals(allEncapsulatedData.f, recoveredData.f));
+    }
+
+    @Test
+    public void test_standalone_primitive_arrays() {
+        TestUtils.AllEncapsulatedArrayData allEncapsulatedData = new TestUtils.AllEncapsulatedArrayData();
+        allEncapsulatedData.a = new long[] {-1L, 1L};
+        allEncapsulatedData.b = new int[] {1, -1};
+        allEncapsulatedData.c = new byte[] {127, -128};
+        allEncapsulatedData.d = new short[] {-32768, 32767};
+        allEncapsulatedData.e = new boolean[] {true, false, true};
+        allEncapsulatedData.f = new char[]{'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '!'};
+
+        byte[] data = vSerializer.serialize(allEncapsulatedData.a);
+        assertEquals(16, data.length);
+        long[] recoveredLong = vSerializer.deserialise(data, long[].class);
+        assertTrue(Arrays.equals(recoveredLong, allEncapsulatedData.a));
+
+        data = vSerializer.serialize(allEncapsulatedData.b);
+        assertEquals(8, data.length);
+        int[] recoveredInt = vSerializer.deserialise(data, int[].class);
+        assertTrue(Arrays.equals(recoveredInt, allEncapsulatedData.b));
+
+        data = vSerializer.serialize(allEncapsulatedData.c);
+        assertEquals(2, data.length);
+        byte[] recoveredBytes = vSerializer.deserialise(data, byte[].class);
+        assertTrue(Arrays.equals(recoveredBytes, allEncapsulatedData.c));
+
+        data = vSerializer.serialize(allEncapsulatedData.d);
+        assertEquals(4, data.length);
+        short[] recoveredShort = vSerializer.deserialise(data, short[].class);
+        assertTrue(Arrays.equals(recoveredShort, allEncapsulatedData.d));
+
+        data = vSerializer.serialize(allEncapsulatedData.e);
+        assertEquals(3, data.length);
+        boolean[] recoveredBoolean = vSerializer.deserialise(data, boolean[].class);
+        assertTrue(Arrays.equals(recoveredBoolean, allEncapsulatedData.e));
+
+        data = vSerializer.serialize(allEncapsulatedData.f);
+        assertEquals(24, data.length);
+        char[] recoveredChar = vSerializer.deserialise(data, char[].class);
+        assertTrue(Arrays.equals(recoveredChar, allEncapsulatedData.f));
+
 
     }
 
