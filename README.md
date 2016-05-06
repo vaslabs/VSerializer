@@ -30,7 +30,8 @@ allEncapsulatedData.f = 'h';
 
 byte[] data = vSerializer.serialize(allEncapsulatedData);
 
-TestUtils.AllEncapsulatedData recoveredData = vSerializer.deserialise(data, TestUtils.AllEncapsulatedData.class);
+TestUtils.AllEncapsulatedData recoveredData = 
+	vSerializer.deserialise(data, TestUtils.AllEncapsulatedData.class);
 ```
 # Motivation
 
