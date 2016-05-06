@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ public class SerializationUtils {
         SerializationUtils.sizes.put(byte[].class, 1);
         SerializationUtils.sizes.put(short[].class, 2);
         SerializationUtils.sizes.put(char[].class, 2);
+        sizes = Collections.unmodifiableMap(sizes);
     }
 
     static {
@@ -45,6 +47,7 @@ public class SerializationUtils {
         SerializationUtils.enumTypes.put(byte[].class, PrimitiveType.BYTE);
         SerializationUtils.enumTypes.put(short[].class, PrimitiveType.SHORT);
         SerializationUtils.enumTypes.put(char[].class, PrimitiveType.CHAR);
+        enumTypes = Collections.unmodifiableMap(enumTypes);
     }
 
     public static <T, E extends Class<T>> T instantiate(E clazz) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
