@@ -2,7 +2,7 @@
 A library to serialize and deserialize objects with minimum memory usage.
 
 # Gradle dependencies
-```
+```ruby
 allprojects {
 		repositories {
 			...
@@ -11,14 +11,14 @@ allprojects {
 }
 ```
 
-```
+```ruby
 dependencies {
     compile 'com.github.vaslabs:VSerializer:1.0'
 }
 ```
 
 # Example
-```
+```java
 VSerializer vSerializer = new AlphabeticalSerializer();
 TestUtils.AllEncapsulatedData allEncapsulatedData = new TestUtils.AllEncapsulatedData();
 allEncapsulatedData.a = -1L;
