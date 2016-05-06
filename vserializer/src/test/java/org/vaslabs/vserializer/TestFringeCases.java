@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -162,6 +161,16 @@ public class TestFringeCases {
 
         TestUtils.DataStructureWithArray recoveredDataStructure = vSerializer.deserialise(data, TestUtils.DataStructureWithArray.class);
         assertNull(recoveredDataStructure.numbers);
+        assertEquals(true, recoveredDataStructure.somethingElse);
+        assertEquals(-1L, recoveredDataStructure.value);
+
+        dataStructureWithArray.numbers = new int[0];
+
+        data = vSerializer.serialize(dataStructureWithArray);
+        assertEquals(13, data.length);
+        recoveredDataStructure = vSerializer.deserialise(data, TestUtils.DataStructureWithArray.class);
+
+        assertEquals(0, recoveredDataStructure.numbers.length);
         assertEquals(true, recoveredDataStructure.somethingElse);
         assertEquals(-1L, recoveredDataStructure.value);
     }
