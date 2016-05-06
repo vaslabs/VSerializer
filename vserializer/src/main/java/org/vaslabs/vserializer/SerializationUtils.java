@@ -96,6 +96,8 @@ public class SerializationUtils {
 
             field.setAccessible(true);
             Class type = field.getType();
+            if (field.get(obj) == null)
+                return 0;
             final int consistentTypeSize;
             if (!sizes.containsKey(type)) {
                 return sizeOfArrayType(field, obj);

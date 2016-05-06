@@ -3,6 +3,7 @@ package org.vaslabs.vserializer;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
@@ -144,6 +145,25 @@ public class TestFringeCases {
         assertEquals(0, data.length);
         recoveredShortValues = vSerializer.deserialise(data, short[].class);
         assertEquals(0, recoveredShortValues.length);
+    }
+
+    @Test
+    public void test_inner_primitive_arrays() {
+        TestUtils.DataStructureWithArray dataStructureWithArray = new TestUtils.DataStructureWithArray();
+        dataStructureWithArray.numbers = null;
+        dataStructureWithArray.somethingElse = true;
+        dataStructureWithArray.value = -1L;
+        byte[] data = vSerializer.serialize(dataStructureWithArray);
+        assertEquals(13, data.length);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        assertEquals(-1, byteBuffer.getInt());
+        assertEquals(1, byteBuffer.get());
+        assertEquals(-1L, byteBuffer.getLong());
+
+        TestUtils.DataStructureWithArray recoveredDataStructure = vSerializer.deserialise(data, TestUtils.DataStructureWithArray.class);
+        assertNull(recoveredDataStructure.numbers);
+        assertEquals(true, recoveredDataStructure.somethingElse);
+        assertEquals(-1L, recoveredDataStructure.value);
     }
 
 }

@@ -247,6 +247,10 @@ public class AlphabeticalSerializer extends StringSerializer {
             return;
         }
         final int arrayLength = byteBuffer.getInt();
+        if (arrayLength == -1) {
+            field.set(obj, null);
+            return;
+        }
         switch (SerializationUtils.enumTypes.get(fieldType)) {
             case INT: {
                 int[] array = new int[arrayLength];
