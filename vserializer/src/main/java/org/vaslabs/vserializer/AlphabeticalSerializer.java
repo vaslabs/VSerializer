@@ -117,7 +117,7 @@ public class AlphabeticalSerializer extends StringSerializer {
                 return (T) array;
             }
             case BYTE:{
-                boolean[] array = new boolean[data.length/typeSize];
+                byte[] array = new byte[data.length/typeSize];
                 SerializationUtils.fromBytes(data, array);
                 return (T) array;
             }
