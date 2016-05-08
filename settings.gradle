@@ -1,1 +1,1 @@
-include ':app', ':vserializer'
+include ':app', ':lib'
