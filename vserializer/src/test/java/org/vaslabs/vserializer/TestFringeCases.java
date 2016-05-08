@@ -3,10 +3,13 @@ package org.vaslabs.vserializer;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 /**
  * Created by vnicolaou on 05/05/16.
@@ -205,6 +208,22 @@ public class TestFringeCases {
         assertEquals(4, recoveredStaticData.myNumber);
         assertEquals(-111, TestUtils.StaticData.staticNumber);
 
+    }
+
+    @Test
+    public void test_instantiate_object_with_private_constructor() {
+        try {
+            PrivateConstructor pc = SerializationUtils.instantiate(PrivateConstructor.class);
+            assertNotNull(pc);
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
+
+    static class PrivateConstructor {
+        private PrivateConstructor() {
+
+        }
     }
 
 }
