@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import static org.vaslabs.vserializer.SerializationUtils.getAllFields;
 import static org.vaslabs.vserializer.SerializationUtils.skipField;
 
 /**
@@ -26,7 +27,7 @@ public class AlphabeticalSerializer extends StringSerializer {
         }
         if (obj instanceof String)
             return super.serialize(obj);
-        final Field[] fields = obj.getClass().getDeclaredFields();
+        final Field[] fields = getAllFields(obj);
         final int size = SerializationUtils.calculateSize(fields, obj);
 
         ByteBuffer byteBuffer = ByteBuffer.allocate(size);
@@ -53,7 +54,7 @@ public class AlphabeticalSerializer extends StringSerializer {
             try {
                 if (obj != null) {
                     byteBuffer.put((byte) 1);
-                    putIn(byteBuffer, obj.getClass().getDeclaredFields(), obj);
+                    putIn(byteBuffer, getAllFields(obj), obj);
                 } else {
                     byteBuffer.put((byte) -1);
                 }
@@ -76,7 +77,7 @@ public class AlphabeticalSerializer extends StringSerializer {
                 return deserialiseArray(data, clazz);
             }
         }
-        Field[] fields = clazz.getDeclaredFields();
+        Field[] fields = getAllFields(clazz);
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         T obj = null;
         try {
@@ -131,7 +132,7 @@ public class AlphabeticalSerializer extends StringSerializer {
         final int arraySize = data.length == 0 ? 0 : byteBuffer.getInt();
         Class type = clazz.getComponentType();
         T[] objects = (T[]) Array.newInstance(type, arraySize);
-        final Field[] fields = type.getDeclaredFields();
+        final Field[] fields = getAllFields(type);
         for (int i = 0; i < objects.length; i++) {
             boolean objectIsNull = byteBuffer.get() == -1;
             if (objectIsNull) {
@@ -200,7 +201,7 @@ public class AlphabeticalSerializer extends StringSerializer {
 
                 Object innerObject = SerializationUtils.instantiate(field.getType());
                 field.set(obj, innerObject);
-                convert(byteBuffer, obj.getClass().getDeclaredFields(), innerObject);
+                convert(byteBuffer, getAllFields(obj), innerObject);
                 return;
             }
         }
@@ -299,7 +300,7 @@ public class AlphabeticalSerializer extends StringSerializer {
             return;
         Class type = field.getType().getComponentType();
         T[] objects = (T[]) Array.newInstance(type, arraySize);
-        final Field[] fields = type.getDeclaredFields();
+        final Field[] fields = getAllFields(type);
         for (int i = 0; i < objects.length; i++) {
             if (byteBuffer.get() == -1) {
                 objects[i] = null;
@@ -363,7 +364,7 @@ public class AlphabeticalSerializer extends StringSerializer {
                 return;
             } else {
                 byteBuffer.put((byte) 1);
-                putIn(byteBuffer, fieldObject.getClass().getDeclaredFields(), fieldObject);
+                putIn(byteBuffer, getAllFields(fieldObject), fieldObject);
                 return;
             }
         }
@@ -422,7 +423,7 @@ public class AlphabeticalSerializer extends StringSerializer {
         if (objects == null || objects.length == 0)
             return;
 
-        Field[] fields = objects[0].getClass().getDeclaredFields();
+        Field[] fields = getAllFields(objects[0]);
         for (Object object : objects) {
             if (object == null) {
                 byteBuffer.put((byte) -1);

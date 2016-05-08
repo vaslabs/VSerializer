@@ -8,6 +8,7 @@ import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -68,6 +69,11 @@ public class SerializationUtils {
             else if (!field.getType().isPrimitive()) {
                 if (field.getType().equals(String.class)) {
                     try {
+                        try {
+                            arrangeField(field, obj);
+                        } catch (NoSuchFieldException e) {
+                            e.printStackTrace();
+                        }
                         String string = (String) field.get(obj);
                         if (string == null)
                             size += 4;
@@ -83,7 +89,7 @@ public class SerializationUtils {
                     field.setAccessible(true);
                     final Object newObj = field.get(obj);
                     if (newObj != null)
-                        size += calculateSize(newObj.getClass().getDeclaredFields(), newObj);
+                        size += calculateSize(getAllFields(newObj), newObj);
                     field.setAccessible(false);
                 } catch (IllegalAccessException e) {
 
@@ -127,7 +133,7 @@ public class SerializationUtils {
                 continue;
             }
             Class type = object.getClass();
-            sizeSum += calculateSize(type.getDeclaredFields(), object);
+            sizeSum += calculateSize(getAllFields(type), object);
         }
         return sizeSum + objects.length;
     }
@@ -192,7 +198,7 @@ public class SerializationUtils {
     }
 
     public static <T> int calculateNonPrimitiveArraySize(T[] objects) {
-        final Field[] fields = objects[0].getClass().getDeclaredFields();
+        final Field[] fields = getAllFields(objects[0]);
         final int sizeOfSingleObject = SerializationUtils.calculateSize(fields, objects[0]);
 
         int totalSize = objects.length + 4;
@@ -287,5 +293,32 @@ public class SerializationUtils {
     protected static void fromBytes(byte[] data, byte[] preAllocatedValues) {
         final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         for (int i = 0; i<preAllocatedValues.length; i++) { preAllocatedValues[i] = byteBuffer.get(); }
+    }
+
+    public static <T> Field[] getAllFields(T obj) {
+        final Field[] fields = obj.getClass().getDeclaredFields();
+        return getAllFields(fields, obj.getClass().getSuperclass());
+    }
+
+    public static Field[] getAllFields(Class clazz) {
+        final Field[] fields = clazz.getDeclaredFields();
+        return getAllFields(fields, clazz.getSuperclass());
+    }
+
+    private static Field[] getAllFields(Field[] fields, Class<?> superclass) {
+        if (superclass == null || superclass.equals(Object.class))
+            return fields;
+        Field[] inheritedFields = superclass.getDeclaredFields();
+        Field[] mergedFields = new Field[fields.length + inheritedFields.length];
+        int index = 0;
+        for (int i = 0; i < fields.length; i++) {
+            mergedFields[index++] = fields[i];
+        }
+        for (int i = 0; i < inheritedFields.length; i++) {
+            mergedFields[index++] = inheritedFields[i];
+        }
+
+        return getAllFields(mergedFields, superclass.getSuperclass());
+
     }
 }
