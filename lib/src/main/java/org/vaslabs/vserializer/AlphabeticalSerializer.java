@@ -28,7 +28,7 @@ public class AlphabeticalSerializer extends StringSerializer {
         if (obj instanceof String)
             return super.serialize(obj);
         final Field[] fields = getAllFields(obj);
-        final int size = SerializationUtils.calculateSize(fields, obj);
+        final int size = computeSize(fields, obj);
 
         ByteBuffer byteBuffer = ByteBuffer.allocate(size);
 
@@ -41,6 +41,10 @@ public class AlphabeticalSerializer extends StringSerializer {
         }
 
         return byteBuffer.array();
+    }
+
+    protected int computeSize(Field[] fields, Object obj) {
+        return SerializationUtils.calculateSize(fields, obj);
     }
 
     @Override
@@ -321,7 +325,7 @@ public class AlphabeticalSerializer extends StringSerializer {
 
     }
 
-    private void putIn(ByteBuffer byteBuffer, Field[] fields, Object obj) throws IllegalAccessException {
+    protected void putIn(ByteBuffer byteBuffer, Field[] fields, Object obj) throws IllegalAccessException {
         Arrays.sort(fields, new Comparator<Field>() {
             @Override
             public int compare(Field lhs, Field rhs) {
@@ -342,7 +346,7 @@ public class AlphabeticalSerializer extends StringSerializer {
         }
     }
 
-    private void putIn(ByteBuffer byteBuffer, Field field, Object obj) throws IllegalAccessException {
+    protected void putIn(ByteBuffer byteBuffer, Field field, Object obj) throws IllegalAccessException {
         if (obj == null)
             return;
         Class type = field.getType();

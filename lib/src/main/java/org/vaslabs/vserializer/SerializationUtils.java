@@ -100,7 +100,7 @@ public class SerializationUtils {
         return size;
     }
 
-    private static int sizeOfArray(Field field, Object obj) {
+    protected static int sizeOfArray(Field field, Object obj) {
         try {
 
             field.setAccessible(true);
@@ -321,4 +321,7 @@ public class SerializationUtils {
         return getAllFields(mergedFields, superclass.getSuperclass());
 
     }
+
+
+
 }
