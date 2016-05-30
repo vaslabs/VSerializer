@@ -1,10 +1,11 @@
 package org.vaslabs.vserializer;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.vaslabs.vserializer.SerializationUtils.arrangeField;
@@ -17,6 +18,7 @@ import static org.vaslabs.vserializer.SerializationUtils.skipField;
 public class ReferenceSensitiveAlphabeticalSerializer extends AlphabeticalSerializer{
 
     private ThreadLocal<ByteBufferPutter> byteBufferPutterThreadLocal;
+    private ThreadLocal<Map<Integer, Object>> mappingThreadLocal;
 
     protected ReferenceSensitiveAlphabeticalSerializer() {
 
@@ -46,8 +48,90 @@ public class ReferenceSensitiveAlphabeticalSerializer extends AlphabeticalSerial
             e.printStackTrace();
             return new byte[0];
         }
-
+        byteBufferPutterThreadLocal.remove();
         return byteBuffer.array();
+    }
+
+    @Override
+    public <T> T deserialise(byte[] data, Class<T> clazz) {
+        mappingThreadLocal = new ThreadLocal<>();
+        if (clazz.equals(String.class))
+            return super.deserialise(data, clazz);
+        Field[] fields = getAllFields(clazz);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        T obj = null;
+        int instanceSignature = byteBuffer.getInt();
+        if (instanceSignature == 0)
+            return null;
+        try {
+            obj = SerializationUtils.instantiate(clazz);
+            setUpThreadLocalIfMappingDoesNotExist();
+            seen(instanceSignature, obj);
+            obj = convert(byteBuffer, fields, obj);
+        } catch (Exception e) {
+            return obj;
+        }
+        return obj;
+    }
+
+    @Override
+    protected <T> void convert(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchMethodException, InstantiationException, InvocationTargetException, NoSuchFieldException {
+        Class fieldType = field.getType();
+        if (skipField(field))
+            return;
+        if (fieldType.isArray()) {
+            super.convertArray(byteBuffer, field, obj);
+            return;
+        }
+
+        PrimitiveType primitiveType = SerializationUtils.enumTypes.get(fieldType);
+        if (primitiveType == null) {
+            if (String.class.equals(field.getType())) {
+                this.convertString(byteBuffer, field, obj);
+            }
+            int signature = byteBuffer.getInt();
+            if (signature == 0) {
+                field.set(obj, null);
+            } else {
+                final Object innerObject;
+                if (seen(signature))
+                    innerObject = getFromMapping(signature);
+                else {
+                    innerObject = SerializationUtils.instantiate(field.getType());
+                    seen(signature, innerObject);
+                }
+                field.set(obj, innerObject);
+                convert(byteBuffer, getAllFields(obj), innerObject);
+            }
+            return;
+        }
+        super.convert(byteBuffer, field, obj);
+    }
+
+    private void seen(int signature, Object innerObject) {
+        Map<Integer, Object> signatureToObjectMap = mappingThreadLocal.get();
+        signatureToObjectMap.put(signature, innerObject);
+    }
+
+    private Object getFromMapping(int signature) {
+        Map<Integer, Object> signatureToObjectMap = mappingThreadLocal.get();
+        return signatureToObjectMap.get(signature);
+    }
+
+    private boolean seen(int signature) {
+        setUpThreadLocalIfMappingDoesNotExist();
+        Map<Integer, Object> signatureToObjectMap = mappingThreadLocal.get();
+        if (signatureToObjectMap.containsKey(signature))
+            return true;
+        return false;
+    }
+
+    private void setUpThreadLocalIfMappingDoesNotExist() {
+        Map<Integer, Object> signatureToObjectMap = mappingThreadLocal.get();
+        if (signatureToObjectMap == null) {
+            signatureToObjectMap = new HashMap<>();
+            mappingThreadLocal.set(signatureToObjectMap);
+        }
     }
 
     @Override

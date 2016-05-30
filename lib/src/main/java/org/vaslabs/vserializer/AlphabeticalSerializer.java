@@ -246,7 +246,7 @@ public class AlphabeticalSerializer extends StringSerializer {
     }
 
 
-    private <T> void convertArray(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchFieldException {
+    protected <T> void convertArray(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchFieldException {
         Class fieldType = field.getType();
         if (!SerializationUtils.enumTypes.containsKey(fieldType)) {
             convertNonPrimitiveArray(byteBuffer, field, obj);

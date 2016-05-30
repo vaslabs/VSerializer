@@ -32,6 +32,9 @@ public class TestCircularDataStructures {
         assertEquals(System.identityHashCode(circularDS), byteBuffer.getInt());
         assertEquals(5, byteBuffer.getInt());
         assertEquals(System.identityHashCode(circularDS), byteBuffer.getInt());
+        CircularDS recoveredCircularDS = vSerializer.deserialise(bytes, CircularDS.class);
+        assertEquals(circularDS.justANumber, recoveredCircularDS.justANumber);
+        assertEquals(circularDS.pointsTo.justANumber, recoveredCircularDS.pointsTo.justANumber);
     }
 
     @Test
@@ -47,6 +50,12 @@ public class TestCircularDataStructures {
         assertEquals(4 + (8+4)*2+ 4 + 4, computedSize);
         byte[] data = vSerializer.serialize(cds);
         assertEquals(4 + (8+4)*2+ 4 + 4, data.length );
+        TestUtils.ComplexDataStructure recoveredCds = vSerializer.deserialise(data, TestUtils.ComplexDataStructure.class);
+        assertEquals(cds.a, recoveredCds.a);
+        assertEquals(cds.b, recoveredCds.b);
+        assertEquals(cds.somethingElse.a, recoveredCds.somethingElse.a);
+        assertEquals(cds.somethingElse.b, recoveredCds.somethingElse.b);
+        assertEquals(cds.somethingElse.somethingElse, recoveredCds.somethingElse.somethingElse);
 
     }
 
