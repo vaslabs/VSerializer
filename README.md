@@ -57,7 +57,17 @@ following the examples in the unit test classes.
 
 # Disadvantages
 - Less forgiving for changed classes. A mechanism to manage changes will be in place but since the meta data for the classes won't be carried over it will never be the same as the defaults.
-- Does not maintain the object graph meaning that a cyclic data structure will not be possible to be serialized.
+- ~~Does not maintain the object graph meaning that a cyclic data structure will not be possible to be serialized~~ (The new version provides an experimental serializer that can serialize circular data structures. Use with care as it's still in beta.
+
+## Example 
+```java
+circularDS = new CircularDS();
+circularDS.pointsTo = circularDS;
+circularDS.justANumber = 5;
+VSerializer vSerializer = new ReferenceSensitiveAlphabeticalSerializer();
+byte[] data = vSerializer.serialize(circularDS);
+CircularDS recoveredCircularDS = vSerializer.deserialise(data, CircularDS.class);
+```
 
 # Use case
 - Any data structure that matches a timestamp with other primitive values would be highly optimised in terms of space when saving the data using this approach. You can save millions of key/value pairs for data like timestamp/location history graph.
