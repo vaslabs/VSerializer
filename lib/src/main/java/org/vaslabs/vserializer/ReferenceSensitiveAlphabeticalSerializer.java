@@ -21,7 +21,8 @@ public class ReferenceSensitiveAlphabeticalSerializer extends AlphabeticalSerial
     private ThreadLocal<Map<Integer, Object>> mappingThreadLocal;
 
     protected ReferenceSensitiveAlphabeticalSerializer() {
-
+        byteBufferPutterThreadLocal = new ThreadLocal<>();
+        mappingThreadLocal = new ThreadLocal<>();
     }
 
     @Override
@@ -54,7 +55,6 @@ public class ReferenceSensitiveAlphabeticalSerializer extends AlphabeticalSerial
 
     @Override
     public <T> T deserialise(byte[] data, Class<T> clazz) {
-        mappingThreadLocal = new ThreadLocal<>();
         if (clazz.equals(String.class))
             return super.deserialise(data, clazz);
         Field[] fields = getAllFields(clazz);
@@ -71,6 +71,7 @@ public class ReferenceSensitiveAlphabeticalSerializer extends AlphabeticalSerial
         } catch (Exception e) {
             return obj;
         }
+        mappingThreadLocal.remove();
         return obj;
     }
 
@@ -143,7 +144,6 @@ public class ReferenceSensitiveAlphabeticalSerializer extends AlphabeticalSerial
     @Override
     protected void putIn(ByteBuffer byteBuffer, Field[] fields, Object obj) throws IllegalAccessException {
         ByteBufferPutter byteBufferPutter = new ByteBufferPutter(obj);
-        byteBufferPutterThreadLocal = new ThreadLocal<>();
         byteBufferPutterThreadLocal.set(byteBufferPutter);
         super.putIn(byteBuffer, fields, obj);
     }

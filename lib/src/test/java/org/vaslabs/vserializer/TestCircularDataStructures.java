@@ -56,7 +56,6 @@ public class TestCircularDataStructures {
         assertEquals(cds.somethingElse.a, recoveredCds.somethingElse.a);
         assertEquals(cds.somethingElse.b, recoveredCds.somethingElse.b);
         assertEquals(cds.somethingElse.somethingElse, recoveredCds.somethingElse.somethingElse);
-
     }
 
     private byte[] thenRunSerializer() {
