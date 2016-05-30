@@ -17,8 +17,8 @@ import static org.vaslabs.vserializer.SerializationUtils.skipField;
  */
 public class ReferenceSensitiveAlphabeticalSerializer extends AlphabeticalSerializer{
 
-    private ThreadLocal<ByteBufferPutter> byteBufferPutterThreadLocal;
-    private ThreadLocal<Map<Integer, Object>> mappingThreadLocal;
+    private final ThreadLocal<ByteBufferPutter> byteBufferPutterThreadLocal;
+    private final ThreadLocal<Map<Integer, Object>> mappingThreadLocal;
 
     protected ReferenceSensitiveAlphabeticalSerializer() {
         byteBufferPutterThreadLocal = new ThreadLocal<>();
