@@ -34,6 +34,22 @@ public class TestCircularDataStructures {
         assertEquals(System.identityHashCode(circularDS), byteBuffer.getInt());
     }
 
+    @Test
+    public void test_do_simple_regression() {
+        TestUtils.ComplexDataStructure cds = new TestUtils.ComplexDataStructure();
+        cds.a = 0xff;
+        cds.b = -1;
+        cds.somethingElse = new TestUtils.ComplexDataStructure();
+        cds.somethingElse.a = -2;
+        cds.somethingElse.b = 5;
+        SizeComputer sizeComputer = new SizeComputer(cds);
+        int computedSize = sizeComputer.calculateSize(SerializationUtils.getAllFields(cds), cds);
+        assertEquals(4 + (8+4)*2+ 4 + 4, computedSize);
+        byte[] data = vSerializer.serialize(cds);
+        assertEquals(4 + (8+4)*2+ 4 + 4, data.length );
+
+    }
+
     private byte[] thenRunSerializer() {
         return vSerializer.serialize(circularDS);
     }

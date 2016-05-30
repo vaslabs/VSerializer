@@ -96,8 +96,9 @@ public class ReferenceSensitiveAlphabeticalSerializer extends AlphabeticalSerial
 
 
                 Object fieldObject = field.get(obj);
-                byteBuffer.putInt(System.identityHashCode(fieldObject));
-                if (seen(fieldObject)) {
+                if (fieldObject != null)
+                    byteBuffer.putInt(System.identityHashCode(fieldObject));
+                if (seen(fieldObject) || fieldObject == null) {
                     return;
                 } else {
                     putIn(byteBuffer, getAllFields(fieldObject), fieldObject);
@@ -107,7 +108,11 @@ public class ReferenceSensitiveAlphabeticalSerializer extends AlphabeticalSerial
             }
 
             private boolean seen(Object fieldObject) {
-                int signature = System.identityHashCode(fieldObject);
+                final int signature;
+                if (fieldObject == null)
+                    signature = 0;
+                else
+                    signature = System.identityHashCode(fieldObject);
                 if (seenObject.contains(signature))
                     return true;
                 seenObject.add(signature);

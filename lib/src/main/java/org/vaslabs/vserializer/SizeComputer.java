@@ -20,6 +20,11 @@ public class SizeComputer {
         seenSet.add(System.identityHashCode(obj));
     }
 
+    private SizeComputer() {
+        size = 0;
+        seenSet = new HashSet<Integer>();
+    }
+
     public int calculateSize(Field[] fields, Object obj) {
         for (Field field : fields) {
             if (SerializationUtils.skipField(field))
@@ -54,14 +59,16 @@ public class SizeComputer {
                 try {
                     arrangeField(field, obj);
                     final Object newObj = field.get(obj);
-                    if (newObj != null)
-                        size += calculateSize(getAllFields(newObj), newObj);
+                    if (newObj != null) {
+                        SizeComputer sizeComputer = new SizeComputer();
+                        size += sizeComputer.calculateSize(getAllFields(newObj), newObj);
+                    }
                 } catch (Exception e) {
 
                 }
+            } else {
+                size += sizeOf(field);
             }
-            size += sizeOf(field);
-
         }
         return size;
     }
@@ -74,9 +81,12 @@ public class SizeComputer {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        final int objectReference;
         if (fieldObject == null)
-            return false;
-        final int objectReference = System.identityHashCode(fieldObject);
+            objectReference = 0;
+        else
+            objectReference = System.identityHashCode(fieldObject);
+
         if (this.seenSet.contains(objectReference))
             return true;
         seenSet.add(objectReference);
