@@ -41,8 +41,8 @@ public class TestEncryptedSerializer {
         localPrivateKey = kpLocal.getPrivate();
         localPublicKey = kpLocal.getPublic();
 
-        remoteEncryptedAlphabeticalSerializer = new EncryptedAlphabeticalSerializer(remotePrivateKey, localPublicKey);
-        localEncryptedAlphabeticalSerializer = new EncryptedAlphabeticalSerializer(localPrivateKey, remotePublicKey);
+        remoteEncryptedAlphabeticalSerializer = new RSAEncryptedAlphabeticalSerializer(remotePrivateKey, localPublicKey);
+        localEncryptedAlphabeticalSerializer = new RSAEncryptedAlphabeticalSerializer(localPrivateKey, remotePublicKey);
     }
 
     @Test

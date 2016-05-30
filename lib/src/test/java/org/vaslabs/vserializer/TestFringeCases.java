@@ -5,6 +5,8 @@ import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -225,5 +227,17 @@ public class TestFringeCases {
 
         }
     }
+
+    @Test
+    public void test_array_of_strings() {
+        String[] strings = new String[] {"s1", "s2", "s3"};
+        byte[] data = vSerializer.serialize(strings);
+        String[] recoveredStrings = vSerializer.deserialise(data, String[].class);
+        assertEquals(strings.length, recoveredStrings.length);
+        assertEquals(strings[0], recoveredStrings[0]);
+        assertEquals(strings[1], recoveredStrings[1]);
+        assertEquals(strings[2], recoveredStrings[2]);
+    }
+
 
 }

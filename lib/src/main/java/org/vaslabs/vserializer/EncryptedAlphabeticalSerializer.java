@@ -1,26 +1,9 @@
 package org.vaslabs.vserializer;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-
 /**
  * Created by vnicolaou on 06/05/16.
  */
-public class EncryptedAlphabeticalSerializer extends AlphabeticalSerializer {
-    private final PublicKey remotePublicKey;
-    private final PrivateKey privateKey;
-
-    public EncryptedAlphabeticalSerializer(PrivateKey localPrivateKey, PublicKey remotePublicKey) {
-        this.privateKey = localPrivateKey;
-        this.remotePublicKey = remotePublicKey;
-    }
+public abstract class EncryptedAlphabeticalSerializer extends AlphabeticalSerializer {
 
     @Override
     public <T> byte[] serialize(T obj) {
@@ -35,12 +18,7 @@ public class EncryptedAlphabeticalSerializer extends AlphabeticalSerializer {
         return data;
     }
 
-    private byte[] encrypt(byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.ENCRYPT_MODE, remotePublicKey);
-        byte[] cipherData = cipher.doFinal(data);
-        return cipherData;
-    }
+    protected abstract byte[] encrypt(byte[] data) throws Exception;
 
     public <T> byte[] serialize(T[] objects) {
         byte[] data = super.serialize(objects);
@@ -62,10 +40,5 @@ public class EncryptedAlphabeticalSerializer extends AlphabeticalSerializer {
         return super.deserialise(data, clazz);
     }
 
-    private byte[] decrypt(byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.DECRYPT_MODE, privateKey);
-        byte[] cipherData = cipher.doFinal(data);
-        return cipherData;
-    }
+    protected abstract byte[] decrypt(byte[] data) throws Exception;
 }
