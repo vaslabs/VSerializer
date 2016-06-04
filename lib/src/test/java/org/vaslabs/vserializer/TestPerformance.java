@@ -1,6 +1,9 @@
 package org.vaslabs.vserializer;
 
 import org.junit.Test;
+
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.Assert.assertTrue;
 import static org.vaslabs.vserializer.TestUtils.serializeObject;
 
@@ -82,5 +85,18 @@ public class TestPerformance {
         byte[] jvmData = serializeObject(internalStrings);
         System.out.println("VSerializer: " + data.length);
         System.out.println("JVM Serializer: " + jvmData.length);
+    }
+
+    @Test
+    public void test_enum_performance() {
+        TestEnumSupport.EnumEncapsulator enumEncapsulator = new TestEnumSupport.EnumEncapsulator();
+        enumEncapsulator.timeUnitMinutes = TimeUnit.MINUTES;
+        enumEncapsulator.timeUnitSeconds = TimeUnit.SECONDS;
+        enumEncapsulator.timeUnitDays = TimeUnit.DAYS;
+        byte[] data = vSerializer.serialize(enumEncapsulator);
+        byte[] jvmData = serializeObject(enumEncapsulator);
+        System.out.println("VSerializer: " + data.length);
+        System.out.println("JVM Serializer: " + jvmData.length);
+
     }
 }
