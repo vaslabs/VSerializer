@@ -1,7 +1,9 @@
 package org.vaslabs.vserializer;
 
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 
@@ -17,6 +19,11 @@ public class TestEnumSupport {
     EnumEncapsulator enumEncapsulator;
     private EnumEncapsulator recoveredEnumEncapsulator;
     private EnumArrayEncapsulator enumArrayEncapsulator;
+
+    @Before
+    public void setUp() {
+        vSerializer = new AlphabeticalSerializer();
+    }
 
     @Test
     public void test_enum_serialization_deserialization() {
@@ -79,11 +86,21 @@ public class TestEnumSupport {
         enumEncapsulator.timeUnitSeconds = TimeUnit.SECONDS;
     }
 
+    @Test
+    public void test_circular_serializer_with_enums() {
+        vSerializer = new ReferenceSensitiveAlphabeticalSerializer();
+        whenInstantiatingClassWithEnums();
+        serializeIt();
+        shouldHaveSize(7);
+        andDeserialize();
+        shouldBeEquals();
+    }
 
-    private static class EnumEncapsulator {
-        private TimeUnit timeUnitDays;
-        private TimeUnit timeUnitSeconds;
-        private TimeUnit timeUnitMinutes;
+
+    protected static class EnumEncapsulator implements Serializable{
+        protected TimeUnit timeUnitDays;
+        protected TimeUnit timeUnitSeconds;
+        protected TimeUnit timeUnitMinutes;
     }
     private static class EnumArrayEncapsulator {
         private TimeUnit[] timeUnits = new TimeUnit[] {TimeUnit.DAYS, TimeUnit.SECONDS};

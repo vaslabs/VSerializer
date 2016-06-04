@@ -84,6 +84,10 @@ public class ReferenceSensitiveAlphabeticalSerializer extends AlphabeticalSerial
             super.convertArray(byteBuffer, field, obj);
             return;
         }
+        if (fieldType.isEnum()) {
+            super.convert(byteBuffer, field, obj);
+            return;
+        }
 
         PrimitiveType primitiveType = SerializationUtils.enumTypes.get(fieldType);
         if (primitiveType == null) {
@@ -153,7 +157,7 @@ public class ReferenceSensitiveAlphabeticalSerializer extends AlphabeticalSerial
         if (obj == null)
             return;
         Class type = field.getType();
-        if (type.isPrimitive()) {
+        if (type.isPrimitive() || type.isEnum()) {
             super.putIn(byteBuffer, field, obj);
             return;
         }

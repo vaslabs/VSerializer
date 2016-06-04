@@ -55,11 +55,14 @@ public class SizeComputer {
                         return 0;
                     }
                 }
-                size += 4;
+                if (field.getType().isEnum())
+                    size +=1;
+                else
+                    size += 4;
                 try {
                     arrangeField(field, obj);
                     final Object newObj = field.get(obj);
-                    if (newObj != null) {
+                    if (newObj != null && !newObj.getClass().getEnclosingClass().isEnum()) {
                         SizeComputer sizeComputer = new SizeComputer();
                         size += sizeComputer.calculateSize(getAllFields(newObj), newObj);
                     }
