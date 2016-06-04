@@ -45,6 +45,15 @@ public class TestEnumSupport {
         assertEquals(enumArrayEncapsulator.timeUnits[1], recoveredEnumArrayEncapsulator.timeUnits[1]);
     }
 
+    @Test
+    public void test_with_null_enums() {
+        whenInstantiatingClassWithEnums();
+        enumEncapsulator.timeUnitDays = null;
+        serializeIt();
+        andDeserialize();
+        shouldBeEquals();
+    }
+
     private void shouldBeEquals() {
         assertEquals(enumEncapsulator.timeUnitDays, recoveredEnumEncapsulator.timeUnitDays);
         assertEquals(enumEncapsulator.timeUnitMinutes, recoveredEnumEncapsulator.timeUnitMinutes);
@@ -65,13 +74,16 @@ public class TestEnumSupport {
 
     private void whenInstantiatingClassWithEnums() {
         enumEncapsulator = new EnumEncapsulator();
+        enumEncapsulator.timeUnitDays = TimeUnit.DAYS;
+        enumEncapsulator.timeUnitMinutes = TimeUnit.MINUTES;
+        enumEncapsulator.timeUnitSeconds = TimeUnit.SECONDS;
     }
 
 
     private static class EnumEncapsulator {
-        private TimeUnit timeUnitDays = TimeUnit.DAYS;
-        private TimeUnit timeUnitSeconds = TimeUnit.SECONDS;
-        private TimeUnit timeUnitMinutes = TimeUnit.MINUTES;
+        private TimeUnit timeUnitDays;
+        private TimeUnit timeUnitSeconds;
+        private TimeUnit timeUnitMinutes;
     }
     private static class EnumArrayEncapsulator {
         private TimeUnit[] timeUnits = new TimeUnit[] {TimeUnit.DAYS, TimeUnit.SECONDS};
