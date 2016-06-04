@@ -144,6 +144,7 @@ public class AlphabeticalSerializer extends StringSerializer {
                 objects[i] = null;
                 continue;
             }
+            final boolean isEnum = type.isEnum();
             T obj = null;
             try {
                 obj = (T) SerializationUtils.instantiate(type);
@@ -259,15 +260,12 @@ public class AlphabeticalSerializer extends StringSerializer {
         if (ordinal < 0) {
             field.set(obj, null);
         }
-        Class enumType = field.getType();
-        Method valuesMethod = enumType.getMethod("values");
-        Object[] enums = (Object[]) valuesMethod.invoke(null);
-        Object enumObj = enums[ordinal];
+        Object enumObj = generateEnum(field.getType(), ordinal);
         field.set(obj, enumObj);
     }
 
 
-    protected <T> void convertArray(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchFieldException {
+    protected <T> void convertArray(ByteBuffer byteBuffer, Field field, T obj) throws IllegalAccessException, NoSuchFieldException, NoSuchMethodException, InstantiationException, InvocationTargetException {
         Class fieldType = field.getType();
         if (!SerializationUtils.enumTypes.containsKey(fieldType)) {
             convertNonPrimitiveArray(byteBuffer, field, obj);
@@ -317,7 +315,7 @@ public class AlphabeticalSerializer extends StringSerializer {
         }
     }
 
-    private <T> void convertNonPrimitiveArray(ByteBuffer byteBuffer, final Field field, T object) throws IllegalAccessException, NoSuchFieldException {
+    private <T> void convertNonPrimitiveArray(ByteBuffer byteBuffer, final Field field, T object) throws IllegalAccessException, NoSuchFieldException, NoSuchMethodException, InvocationTargetException, InstantiationException {
         if (skipField(field))
             return;
         final int arraySize = byteBuffer.getInt();
@@ -332,18 +330,24 @@ public class AlphabeticalSerializer extends StringSerializer {
                 continue;
             }
             T obj = null;
-            try {
+            if (type.isEnum()) {
+                obj = (T) generateEnum(type, byteBuffer.get());
+            } else {
                 obj = (T) SerializationUtils.instantiate(type);
                 obj = convert(byteBuffer, fields, obj);
-                objects[i] = obj;
-            } catch (Exception e) {
 
             }
+            objects[i] = obj;
         }
         SerializationUtils.arrangeField(field, object);
         field.set(object, objects);
         SerializationUtils.houseKeeping(field);
 
+    }
+
+    private <T> T generateEnum(Class<T> enumType, int ordinal) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        T[] enums =  enumType.getEnumConstants();
+        return enums[ordinal];
     }
 
     protected void putIn(ByteBuffer byteBuffer, Field[] fields, Object obj) throws IllegalAccessException {
@@ -432,6 +436,10 @@ public class AlphabeticalSerializer extends StringSerializer {
         Object enumObject = field.get(obj);
         if (enumObject == null)
             return -1;
+        return getOrdinal(enumObject);
+    }
+
+    private int getOrdinal(Object enumObject) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method ordinalMethod = enumObject.getClass().getMethod("ordinal");
         return (int) ordinalMethod.invoke(enumObject);
     }
@@ -452,7 +460,7 @@ public class AlphabeticalSerializer extends StringSerializer {
 
     }
 
-    private void insertArrayValues(ByteBuffer byteBuffer, Field field, Object obj) throws IllegalAccessException {
+    private void insertArrayValues(ByteBuffer byteBuffer, Field field, Object obj) throws IllegalAccessException, NoSuchMethodException, NoSuchFieldException, InvocationTargetException {
         Class fieldType = field.getType();
         if (!SerializationUtils.enumTypes.containsKey(fieldType)) {
             insertArrayValuesNonPrimitive(byteBuffer, field, obj);
@@ -462,7 +470,7 @@ public class AlphabeticalSerializer extends StringSerializer {
         byteBuffer.put(bytes);
     }
 
-    private void insertArrayValuesNonPrimitive(ByteBuffer byteBuffer, Field field, Object obj) throws IllegalAccessException {
+    private void insertArrayValuesNonPrimitive(ByteBuffer byteBuffer, Field field, Object obj) throws IllegalAccessException, NoSuchMethodException, NoSuchFieldException, InvocationTargetException {
         Object[] objects = (Object[]) field.get(obj);
         if (objects == null || objects.length == 0)
             return;
@@ -473,9 +481,19 @@ public class AlphabeticalSerializer extends StringSerializer {
                 byteBuffer.put((byte) -1);
             } else {
                 byteBuffer.put((byte) 1);
+                final boolean isEnum = object.getClass().getEnclosingClass().isEnum();
+                if (isEnum) {
+                    putEnum(byteBuffer, object);
+                    continue;
+                }
                 putIn(byteBuffer, fields, object);
             }
         }
+    }
+
+    private void putEnum(ByteBuffer byteBuffer, Object obj) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException {
+        final int ordinal = getOrdinal(obj);
+        byteBuffer.put((byte) ordinal);
     }
 
 }

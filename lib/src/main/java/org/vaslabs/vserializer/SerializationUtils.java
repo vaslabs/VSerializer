@@ -133,7 +133,11 @@ public class SerializationUtils {
                 continue;
             }
             Class type = object.getClass();
-            sizeSum += calculateSize(getAllFields(type), object);
+            final boolean isEnum = type.getEnclosingClass().isEnum();
+            if (isEnum)
+                sizeSum += 1;
+            else
+                sizeSum += calculateSize(getAllFields(type), object);
         }
         return sizeSum + objects.length;
     }
