@@ -88,7 +88,7 @@ public class SerializationUtils {
                 try {
                     field.setAccessible(true);
                     final Object newObj = field.get(obj);
-                    if (newObj != null)
+                    if (newObj != null && !field.getType().isEnum())
                         size += calculateSize(getAllFields(newObj), newObj);
                     field.setAccessible(false);
                 } catch (IllegalAccessException e) {

@@ -3,6 +3,7 @@ package org.vaslabs.vserializer;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -356,6 +357,16 @@ public class AlphabeticalSerializer extends StringSerializer {
             putArrayIn(byteBuffer, field, obj);
             return;
         }
+        if (type.isEnum()) {
+            try {
+                int ordinal = getOrdinal(obj, field);
+                byteBuffer.put((byte)ordinal);
+                return;
+            } catch (Exception e) {
+                byteBuffer.put((byte) -1);
+                return;
+            }
+        }
         PrimitiveType primitiveType = SerializationUtils.enumTypes.get(type);
         if (primitiveType == null) {
             if (String.class.equals(type)) {
@@ -394,6 +405,15 @@ public class AlphabeticalSerializer extends StringSerializer {
             default:
                 throw new IllegalArgumentException(field.getType().toString());
         }
+    }
+
+    private int getOrdinal(Object obj, Field field) throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        SerializationUtils.arrangeField(field, obj);
+        Object enumObject = field.get(obj);
+        if (enumObject == null)
+            return -1;
+        Method ordinalMethod = enumObject.getClass().getMethod("ordinal");
+        return (int) ordinalMethod.invoke(enumObject);
     }
 
     private void putArrayIn(ByteBuffer byteBuffer, Field field, Object obj) {
