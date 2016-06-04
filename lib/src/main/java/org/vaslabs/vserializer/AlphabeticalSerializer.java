@@ -191,6 +191,14 @@ public class AlphabeticalSerializer extends StringSerializer {
             convertArray(byteBuffer, field, obj);
             return;
         }
+        if (fieldType.isEnum()) {
+            try {
+                convertEnum(byteBuffer, field, obj);
+            } catch (Exception e) {
+                return;
+            }
+            return;
+        }
 
         PrimitiveType primitiveType = SerializationUtils.enumTypes.get(fieldType);
         if (primitiveType == null) {
@@ -244,6 +252,18 @@ public class AlphabeticalSerializer extends StringSerializer {
             default:
                 throw new IllegalArgumentException(field.getType().toString());
         }
+    }
+
+    private <T> void convertEnum(ByteBuffer byteBuffer, Field field, T obj) throws Exception {
+        byte ordinal = byteBuffer.get();
+        if (ordinal < 0) {
+            field.set(obj, null);
+        }
+        Class enumType = field.getType();
+        Method valuesMethod = enumType.getMethod("values");
+        Object[] enums = (Object[]) valuesMethod.invoke(null);
+        Object enumObj = enums[ordinal];
+        field.set(obj, enumObj);
     }
 
 

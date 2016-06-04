@@ -21,10 +21,14 @@ public class TestEnumSupport {
         whenInstantiatingClassWithEnums();
         serializeIt();
         shouldHaveSize(3);
+        andDeserialize();
+        shouldBeEquals();
     }
 
     private void shouldBeEquals() {
-        assertEquals(enumEncapsulator.timeUnitDays, recoveredEnumEncapsulator);
+        assertEquals(enumEncapsulator.timeUnitDays, recoveredEnumEncapsulator.timeUnitDays);
+        assertEquals(enumEncapsulator.timeUnitMinutes, recoveredEnumEncapsulator.timeUnitMinutes);
+        assertEquals(enumEncapsulator.timeUnitSeconds, recoveredEnumEncapsulator.timeUnitSeconds);
     }
 
     private void andDeserialize() {
