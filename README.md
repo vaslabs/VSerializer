@@ -54,6 +54,7 @@ following the examples in the unit test classes.
 - A lot less memory usage when serializing objects compared to JVM or json.
 - Faster processing for serialization/deserialization
 - Extensible: will be able to easily encrypt and decrypt your serialized objects
+- Out of the box deep cloning.
 
 # Disadvantages
 - Less forgiving for changed classes. A mechanism to manage changes will be in place but since the meta data for the classes won't be carried over it will never be the same as the defaults.
