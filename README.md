@@ -14,11 +14,11 @@ allprojects {
 
 ```ruby
 dependencies {
-    compile 'com.github.vaslabs:VSerializer:2.1.1'
+    compile 'com.github.vaslabs:VSerializer:2.2'
 }
 ```
 
-# Example
+# Example - Simple object
 ```java
 VSerializer vSerializer = new AlphabeticalSerializer();
 TestUtils.AllEncapsulatedData allEncapsulatedData = new TestUtils.AllEncapsulatedData();
@@ -33,6 +33,14 @@ byte[] data = vSerializer.serialize(allEncapsulatedData);
 
 TestUtils.AllEncapsulatedData recoveredData = 
 	vSerializer.deserialise(data, TestUtils.AllEncapsulatedData.class);
+```
+
+#Example - List
+```java
+List<TestUtils.EncapsulatedData> encapsulatedDataList = initList(...);
+byte[] data = vSerializer.serialize(encapsulatedDataList);
+List<TestUtils.EncapsulatedData> recoveredList = 
+	vSerializer.deserialise(data, List.class, TestUtils.EncapsulatedData.class);
 ```
 # Motivation
 
@@ -73,3 +81,4 @@ CircularDS recoveredCircularDS = vSerializer.deserialise(data, CircularDS.class)
 # Use case
 - Any data structure that matches a timestamp with other primitive values would be highly optimised in terms of space when saving the data using this approach. You can save millions of key/value pairs for data like timestamp/location history graph.
 - Short lived cache data are in less danger to cause problems when you do class changes. You can benefit by reducing the memory usage in your caching mechanism and not worry much about versioning problems.
+
