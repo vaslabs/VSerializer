@@ -453,6 +453,9 @@ public class AlphabeticalSerializer extends StringSerializer {
             case BOOLEAN:
                 byteBuffer.put((byte) (field.getBoolean(obj) ? 1 : 0));
                 return;
+            case FLOAT:
+                byteBuffer.putFloat(field.getFloat(obj));
+                return;
             default:
                 throw new IllegalArgumentException(field.getType().toString());
         }
