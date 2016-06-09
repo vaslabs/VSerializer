@@ -193,6 +193,10 @@ public class SerializationUtils {
                 short[] array = (short[]) field.get(obj);
                 return array.length;
             }
+            case FLOAT: {
+                float[] array = (float[]) field.get(obj);
+                return array.length;
+            }
             default:
                 return 0;
         }
@@ -326,6 +330,11 @@ public class SerializationUtils {
         for (int i = 0; i<preAllocatedValues.length; i++) { preAllocatedValues[i] = byteBuffer.get(); }
     }
 
+    public static void fromBytes(byte[] data, float[] preAllocatedValues) {
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        for (int i = 0; i<preAllocatedValues.length; i++) { preAllocatedValues[i] = byteBuffer.getFloat(); }
+    }
+
     public static <T> Field[] getAllFields(T obj) {
         final Field[] fields = obj.getClass().getDeclaredFields();
         return getAllFields(fields, obj.getClass().getSuperclass());
@@ -375,4 +384,5 @@ public class SerializationUtils {
         }
         return null;
     }
+
 }
