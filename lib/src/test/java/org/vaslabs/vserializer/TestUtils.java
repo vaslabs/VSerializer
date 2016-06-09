@@ -100,6 +100,7 @@ public class TestUtils {
         protected byte c;// = 0xf;
         protected boolean e;
         protected char f;
+        protected float aFloat;
     }
 
     public static class AllEncapsulatedArrayData implements Serializable {
@@ -109,6 +110,7 @@ public class TestUtils {
         protected byte[] c;// = 0xf;
         protected boolean[] e;
         protected char[] f;
+        protected float[] floats;
     }
 
     public static class TransientData implements Serializable{

@@ -140,6 +140,10 @@ public class AlphabeticalSerializer extends StringSerializer {
                 byte[] array = new byte[data.length/typeSize];
                 SerializationUtils.fromBytes(data, array);
                 return (T) array;
+            } case FLOAT:{
+                float[] array = new float[data.length/typeSize];
+                SerializationUtils.fromBytes(data, array);
+                return (T) array;
             }
 
         }
