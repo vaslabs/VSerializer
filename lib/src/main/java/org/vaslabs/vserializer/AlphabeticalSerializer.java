@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 import static org.vaslabs.vserializer.SerializationUtils.getAllFields;
 import static org.vaslabs.vserializer.SerializationUtils.skipField;
@@ -42,6 +43,12 @@ public class AlphabeticalSerializer extends StringSerializer {
         }
 
         return byteBuffer.array();
+    }
+
+    @Override
+    public <T> byte[] serialize(List<T> list) {
+        Object[] arrayFromList = list.toArray();
+        return serialize(arrayFromList);
     }
 
     protected int computeSize(Field[] fields, Object obj) {
@@ -94,6 +101,13 @@ public class AlphabeticalSerializer extends StringSerializer {
         return obj;
     }
 
+    @Override
+    public <T> List<T> deserialise(byte[] data, Class<List> listClass, Class<T> parametarizedClass) {
+        T[] modelArray = (T[]) Array.newInstance(parametarizedClass, 0);
+        T[] array = (T[]) deserialiseArray(data, modelArray.getClass());
+        return Arrays.asList(array);
+    }
+
     protected <T> T deserialisePrimitiveArray(byte[] data, Class<T> clazz) {
         int typeSize = SerializationUtils.sizes.get(clazz);
         switch (SerializationUtils.enumTypes.get(clazz)) {
@@ -144,14 +158,17 @@ public class AlphabeticalSerializer extends StringSerializer {
                 objects[i] = null;
                 continue;
             }
-            final boolean isEnum = type.isEnum();
             T obj = null;
             try {
+                if (SerializationUtils.primitiveWrappers.containsKey(type)) {
+                    objects[i] = (T) SerializationUtils.instantiatePrimitiveWrapper(type, byteBuffer);
+                    continue;
+                }
                 obj = (T) SerializationUtils.instantiate(type);
                 obj = convert(byteBuffer, fields, obj);
                 objects[i] = obj;
             } catch (Exception e) {
-
+                System.err.println(e.toString());
             }
         }
         return (T) objects;
@@ -250,6 +267,11 @@ public class AlphabeticalSerializer extends StringSerializer {
                 field.setBoolean(obj, value == 1);
                 return;
             }
+            case FLOAT: {
+                float value = byteBuffer.getFloat();
+                field.setFloat(obj, value);
+                return;
+            }
             default:
                 throw new IllegalArgumentException(field.getType().toString());
         }
@@ -309,6 +331,11 @@ public class AlphabeticalSerializer extends StringSerializer {
             case BYTE: {
                 byte[] array = new byte[arrayLength];
                 for (int i = 0; i<arrayLength; i++) { array[i] = byteBuffer.get();}
+                field.set(obj, array);
+                return;
+            } case FLOAT: {
+                float[] array = new float[arrayLength];
+                for (int i = 0; i<arrayLength; i++) { array[i] = byteBuffer.getFloat();}
                 field.set(obj, array);
                 return;
             }
@@ -425,6 +452,9 @@ public class AlphabeticalSerializer extends StringSerializer {
                 return;
             case BOOLEAN:
                 byteBuffer.put((byte) (field.getBoolean(obj) ? 1 : 0));
+                return;
+            case FLOAT:
+                byteBuffer.putFloat(field.getFloat(obj));
                 return;
             default:
                 throw new IllegalArgumentException(field.getType().toString());
