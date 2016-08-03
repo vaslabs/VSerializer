@@ -239,7 +239,7 @@ public class SerializationUtils {
     }
 
     protected static boolean skipField(Field field) {
-        return Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers());
+        return field.isSynthetic() || Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers());
     }
 
     protected static <T> byte[] toBytes(T obj) {
