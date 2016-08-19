@@ -1,6 +1,6 @@
 package org.vaslabs.vserializer;
 
-import java.lang.reflect.Array;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -9,8 +9,8 @@ import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * Created by vnicolaou on 03/05/16.
@@ -335,9 +335,15 @@ public class SerializationUtils {
         for (int i = 0; i<preAllocatedValues.length; i++) { preAllocatedValues[i] = byteBuffer.getFloat(); }
     }
 
+    private static Map<Class, Field[]> classToFieldMap = new WeakHashMap<>();
+
     public static <T> Field[] getAllFields(T obj) {
-        final Field[] fields = obj.getClass().getDeclaredFields();
-        return getAllFields(fields, obj.getClass().getSuperclass());
+        Field[] fields = classToFieldMap.get(obj.getClass());
+        if (fields != null)
+            return fields;
+        fields = getAllFields(obj.getClass().getDeclaredFields(), obj.getClass().getSuperclass());
+        classToFieldMap.put(obj.getClass(), fields);
+        return fields;
     }
 
     public static Field[] getAllFields(Class clazz) {
