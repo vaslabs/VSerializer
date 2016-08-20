@@ -21,14 +21,14 @@ public class AlphabeticalSerializer extends StringSerializer {
     public <T> byte[] serialize(T obj) {
         if (obj == null)
             return new byte[0];
+        if (obj instanceof String)
+            return super.serialize(obj);
         if (obj.getClass().isArray()) {
             boolean isPrimitive = SerializationUtils.enumTypes.containsKey(obj.getClass());
             if (isPrimitive) {
                 return SerializationUtils.toBytes(obj);
             }
         }
-        if (obj instanceof String)
-            return super.serialize(obj);
         final Field[] fields = getAllFields(obj);
         final int size = computeSize(fields, obj);
 
@@ -533,12 +533,26 @@ public class AlphabeticalSerializer extends StringSerializer {
 }
 
 abstract class StringSerializer implements VSerializer {
+    private static Field stringField = null;
+    static {
+        try {
+            stringField = String.class.getDeclaredField("value");
+            stringField.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+    }
     @Override
     public <T> byte[] serialize(T myTestObject) {
-        if (!(myTestObject instanceof String))
-            throw new IllegalArgumentException("Only Strings are supported");
-        char[] chars = ((String)myTestObject).toCharArray();
-        return toBytes(chars);
+
+        try {
+            char[] chars = (char[]) stringField.get(myTestObject);
+            return toBytes(chars);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return new byte[0];
+
     }
 
     private byte[] toBytes(char[] chars) {

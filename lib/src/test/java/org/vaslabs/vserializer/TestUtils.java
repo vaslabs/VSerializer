@@ -1,6 +1,9 @@
 package org.vaslabs.vserializer;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
@@ -30,6 +33,20 @@ public class TestUtils {
 
         return data;
 
+    }
+
+    protected static <T> T deserializeObject(byte[] bytes) {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+        try {
+            ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+            return (T) objectInputStream.readObject();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        throw new RuntimeException();
     }
 
     public static EncapsulatedData[] initEncapsulatedDataArray() {
