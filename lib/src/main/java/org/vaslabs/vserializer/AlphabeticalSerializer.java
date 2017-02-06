@@ -144,6 +144,10 @@ public class AlphabeticalSerializer extends StringSerializer {
                 float[] array = new float[data.length/typeSize];
                 SerializationUtils.fromBytes(data, array);
                 return (T) array;
+            } case DOUBLE: {
+                double[] array = new double[data.length/typeSize];
+                SerializationUtils.fromBytes(data, array);
+                return (T) array;
             }
 
         }
@@ -276,6 +280,11 @@ public class AlphabeticalSerializer extends StringSerializer {
                 field.setFloat(obj, value);
                 return;
             }
+            case DOUBLE: {
+                double value = byteBuffer.getDouble();
+                field.setDouble(obj, value);
+                return;
+            }
             default:
                 throw new IllegalArgumentException(field.getType().toString());
         }
@@ -340,6 +349,11 @@ public class AlphabeticalSerializer extends StringSerializer {
             } case FLOAT: {
                 float[] array = new float[arrayLength];
                 for (int i = 0; i<arrayLength; i++) { array[i] = byteBuffer.getFloat();}
+                field.set(obj, array);
+                return;
+            } case DOUBLE: {
+                double[] array = new double[arrayLength];
+                for (int i = 0; i<arrayLength; i++) { array[i] = byteBuffer.getDouble();}
                 field.set(obj, array);
                 return;
             }
@@ -459,6 +473,9 @@ public class AlphabeticalSerializer extends StringSerializer {
                 return;
             case FLOAT:
                 byteBuffer.putFloat(field.getFloat(obj));
+                return;
+            case DOUBLE:
+                byteBuffer.putDouble(field.getDouble(obj));
                 return;
             default:
                 throw new IllegalArgumentException(field.getType().toString());

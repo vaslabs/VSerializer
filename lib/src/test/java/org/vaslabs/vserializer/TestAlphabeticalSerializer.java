@@ -241,6 +241,7 @@ public class TestAlphabeticalSerializer {
         allEncapsulatedData.e = true;
         allEncapsulatedData.f = 'h';
         allEncapsulatedData.aFloat = 2.4f;
+        allEncapsulatedData.aDouble = 3.54;
 
         byte[] data = vSerializer.serialize(allEncapsulatedData);
 
@@ -252,6 +253,7 @@ public class TestAlphabeticalSerializer {
         assertEquals(allEncapsulatedData.e, recoveredData.e);
         assertEquals(allEncapsulatedData.f, recoveredData.f);
         assertEquals(allEncapsulatedData.aFloat, recoveredData.aFloat, 0);
+        assertEquals(allEncapsulatedData.aDouble, recoveredData.aDouble, 0);
 
     }
 
@@ -265,6 +267,7 @@ public class TestAlphabeticalSerializer {
         allEncapsulatedData.e = new boolean[] {true, false, true};
         allEncapsulatedData.f = new char[]{'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '!'};
         allEncapsulatedData.floats = new float[] {1f, 3f, 2.8f};
+        allEncapsulatedData.doubles = new double[] {2.0, 3.0, -1.0};
         byte[] data = vSerializer.serialize(allEncapsulatedData);
 
         TestUtils.AllEncapsulatedArrayData recoveredData = vSerializer.deserialise(data, TestUtils.AllEncapsulatedArrayData.class);
@@ -275,6 +278,8 @@ public class TestAlphabeticalSerializer {
         assertTrue(Arrays.equals(allEncapsulatedData.e, recoveredData.e));
         assertTrue(Arrays.equals(allEncapsulatedData.f, recoveredData.f));
         assertTrue(Arrays.equals(allEncapsulatedData.floats, recoveredData.floats));
+        assertTrue(Arrays.equals(allEncapsulatedData.doubles, recoveredData.doubles));
+
     }
 
     @Test

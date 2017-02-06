@@ -118,6 +118,20 @@ public class TestUtils {
         protected boolean e;
         protected char f;
         protected float aFloat;
+        protected double aDouble;
+
+        @Override
+        public String toString() {
+            StringBuilder stringBuilder = new StringBuilder(256);
+            stringBuilder.append(a).append(':').append(b).append(':')
+                    .append(':').append(c)
+                    .append(':').append(d)
+                    .append(':').append(e)
+                    .append(':').append(f)
+                    .append(':').append(aFloat);
+            return stringBuilder.toString();
+        }
+
     }
 
     public static class AllEncapsulatedArrayData implements Serializable {
@@ -128,6 +142,7 @@ public class TestUtils {
         protected boolean[] e;
         protected char[] f;
         protected float[] floats;
+        protected double[] doubles;
     }
 
     public static class TransientData implements Serializable{

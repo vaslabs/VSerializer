@@ -29,6 +29,7 @@ public class SerializationUtils {
             primitiveWrappers.put(Double.class, Double.class.getMethod("valueOf", Double.TYPE));
             primitiveWrappers.put(Float.class, Float.class.getMethod("valueOf", Float.TYPE));
             primitiveWrappers.put(Character.class, Character.class.getMethod("valueOf", Character.TYPE));
+            primitiveWrappers.put(Byte.class, Byte.class.getMethod("valueOf", Byte.TYPE));
             primitiveWrappers = Collections.unmodifiableMap(primitiveWrappers);
         } catch (Exception e) {
             System.exit(1);
@@ -36,20 +37,22 @@ public class SerializationUtils {
     }
 
     static {
-        SerializationUtils.sizes.put(Integer.TYPE, 4);
-        SerializationUtils.sizes.put(Float.TYPE, 4);
-        SerializationUtils.sizes.put(Long.TYPE, 8);
+        SerializationUtils.sizes.put(Integer.TYPE, Integer.SIZE/8);
+        SerializationUtils.sizes.put(Float.TYPE, Float.SIZE/8);
+        SerializationUtils.sizes.put(Long.TYPE, Long.SIZE/8);
         SerializationUtils.sizes.put(Boolean.TYPE, 1);
-        SerializationUtils.sizes.put(Byte.TYPE, 1);
-        SerializationUtils.sizes.put(Short.TYPE, 2);
-        SerializationUtils.sizes.put(Character.TYPE, 2);
-        SerializationUtils.sizes.put(int[].class, 4);
-        SerializationUtils.sizes.put(long[].class, 8);
+        SerializationUtils.sizes.put(Byte.TYPE, Byte.SIZE/8);
+        SerializationUtils.sizes.put(Short.TYPE, Short.SIZE/8);
+        SerializationUtils.sizes.put(Character.TYPE, Character.SIZE/8);
+        SerializationUtils.sizes.put(Double.TYPE, Double.SIZE/8);
+        SerializationUtils.sizes.put(int[].class, Integer.SIZE/8);
+        SerializationUtils.sizes.put(long[].class, Long.SIZE/8);
         SerializationUtils.sizes.put(boolean[].class, 1);
-        SerializationUtils.sizes.put(byte[].class, 1);
-        SerializationUtils.sizes.put(short[].class, 2);
-        SerializationUtils.sizes.put(char[].class, 2);
-        SerializationUtils.sizes.put(float[].class, 4);
+        SerializationUtils.sizes.put(byte[].class, Byte.SIZE/8);
+        SerializationUtils.sizes.put(short[].class, Short.SIZE/8);
+        SerializationUtils.sizes.put(char[].class, Character.SIZE/8);
+        SerializationUtils.sizes.put(float[].class, Float.SIZE/8);
+        SerializationUtils.sizes.put(double[].class, Double.SIZE/8);
         sizes = Collections.unmodifiableMap(sizes);
     }
 
@@ -61,6 +64,7 @@ public class SerializationUtils {
         SerializationUtils.enumTypes.put(Short.TYPE, PrimitiveType.SHORT);
         SerializationUtils.enumTypes.put(Character.TYPE, PrimitiveType.CHAR);
         SerializationUtils.enumTypes.put(Float.TYPE, PrimitiveType.FLOAT);
+        SerializationUtils.enumTypes.put(Double.TYPE, PrimitiveType.DOUBLE);
         SerializationUtils.enumTypes.put(int[].class, PrimitiveType.INT);
         SerializationUtils.enumTypes.put(long[].class, PrimitiveType.LONG);
         SerializationUtils.enumTypes.put(boolean[].class, PrimitiveType.BOOLEAN);
@@ -68,6 +72,7 @@ public class SerializationUtils {
         SerializationUtils.enumTypes.put(short[].class, PrimitiveType.SHORT);
         SerializationUtils.enumTypes.put(char[].class, PrimitiveType.CHAR);
         SerializationUtils.enumTypes.put(float[].class, PrimitiveType.FLOAT);
+        SerializationUtils.enumTypes.put(double[].class, PrimitiveType.DOUBLE);
         enumTypes = Collections.unmodifiableMap(enumTypes);
     }
 
@@ -197,6 +202,10 @@ public class SerializationUtils {
                 float[] array = (float[]) field.get(obj);
                 return array.length;
             }
+            case DOUBLE: {
+                double[] array = (double[]) field.get(obj);
+                return array.length;
+            }
             default:
                 return 0;
         }
@@ -296,6 +305,12 @@ public class SerializationUtils {
                 for (float s : array) { byteBuffer.putFloat(s); }
                 return byteBuffer.array();
             }
+            case DOUBLE: {
+                double[] array = (double[])obj;
+                byteBuffer = ByteBuffer.allocate(array.length*size);
+                for (double d : array) { byteBuffer.putDouble(d); }
+                return byteBuffer.array();
+            }
         }
         return null;
     }
@@ -328,6 +343,12 @@ public class SerializationUtils {
     protected static void fromBytes(byte[] data, byte[] preAllocatedValues) {
         final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         for (int i = 0; i<preAllocatedValues.length; i++) { preAllocatedValues[i] = byteBuffer.get(); }
+    }
+
+    protected static void fromBytes(byte[] data, double[] preAllocatedValues) {
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        for (int i = 0; i<preAllocatedValues.length; i++) { preAllocatedValues[i] = byteBuffer.getDouble(); }
+
     }
 
     public static void fromBytes(byte[] data, float[] preAllocatedValues) {
@@ -387,6 +408,8 @@ public class SerializationUtils {
                 return (T) valueOfMethod.invoke(null, byteBuffer.get());
             case CHAR:
                 return (T) valueOfMethod.invoke(null, byteBuffer.getChar());
+            case DOUBLE:
+                return (T)valueOfMethod.invoke(null, byteBuffer.getDouble());
         }
         return null;
     }
