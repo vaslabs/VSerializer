@@ -67,6 +67,8 @@ following the examples in the unit test classes.
 # Disadvantages
 - Less forgiving for changed classes. A mechanism to manage changes will be in place but since the meta data for the classes won't be carried over it will never be the same as the defaults.
 - ~~Does not maintain the object graph meaning that a cyclic data structure will not be possible to be serialized~~ (The new version provides an experimental serializer that can serialize circular data structures. Use with care as it's still in beta.)
+- Loses polymorphism capabilities as it needs the exact class passed to deserialised methods in order to construct the object correctly
+- Reflection slows it down.
 
 ## Example 
 ```java
