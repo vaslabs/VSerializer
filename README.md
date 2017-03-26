@@ -1,4 +1,8 @@
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-VSerializer-green.svg?style=true)](https://android-arsenal.com/details/1/3563)
+
+# Deprecated
+Please use https://github.com/vaslabs/VSerializerJVM instead.
+
 # VSerializer
 A library to serialize and deserialize objects with minimum memory usage.
 
